@@ -8,7 +8,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
 // Routes
-router.get("/", (req, res, next) => {
+const index = router.get("/", (req, res, next) => {
 	res.render("index");
   //res.send("Hello World.")
 	next();
@@ -36,14 +36,18 @@ var app = express();
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "pug");
 
-//app.use(logger("dev"));
+app.use(logger("dev"));
 //app.use(bodyParser.json({ limit: "3000mb" }));
-//app.use(bodyParser.urlencoded({ extended : false }));
-//app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended : false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
 
 // Set up routes
-app.use("/", router);
+app.use("/", (req, res, next) => {
+  res.render("index");
+  //res.send("Hello World.")
+  next();
+});
 
 // Set up janitor middlewares
 app.use(notFoundHandler);

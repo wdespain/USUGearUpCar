@@ -7,8 +7,9 @@ export default class App {
   }
 
   displayNewNumber() {
-  	this.displayNum += 1;
-
-  	$("#numberDisplay").innerText(this.displayNum);
+    this.displayNum += 1
+    console.log(`Update called. New num: ${this.displayNum}`)
+    console.log(`old num: ${$("#numberDisplay").innerText.val()}`)
+  	$("#numberDisplay").innerText = this.displayNum;
   }
 }
