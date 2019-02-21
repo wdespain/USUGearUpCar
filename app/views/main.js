@@ -2,11 +2,9 @@ import App from "./app.js";
 
 (async () => {
   window.app = new App;
-  console.log("App created")
-  window.app.displayNewNumber()
-  /*
+
   const incrementFunc = async () => {
-    /*await $.ajax({
+    await $.ajax({
       type : "POST",
       url : "http://localhost:3000/increment",
       data : `{"number" : "${window.app.displayNum}"`,
@@ -21,7 +19,7 @@ import App from "./app.js";
   }
 
   while (true){
-    incrementFunc();
-  }*/
+    setTimeout(incrementFunc, 10000);
+  }
   
 })();
