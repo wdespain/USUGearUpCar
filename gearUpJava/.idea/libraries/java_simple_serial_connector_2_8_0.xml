@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="java-simple-serial-connector-2.8.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/java-simple-serial-connector-2.8.0.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/java-simple-serial-connector-2.8.0.zip!/java-simple-serial-connector-2.8.0/src/java" />
+    </SOURCES>
+  </library>
+</component>
