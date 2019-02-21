@@ -1,8 +1,0 @@
-{
-  "ignore" : [
-    "nodemon.json",
-    "package.json",
-    "views/*",
-    "serverFiles/*"
-  ]
-}
