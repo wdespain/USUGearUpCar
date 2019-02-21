@@ -29,15 +29,25 @@ public class Main {
     }
 
     static class SerialPortReader implements SerialPortEventListener {
-
+        //int messageLen = 14;
         public void serialEvent(SerialPortEvent event) {
             //Object type SerialPortEvent carries information about which event occurred and a value.
             //For example, if the data came a method event.getEventValue() returns us the number of bytes in the input buffer.
             if (event.isRXCHAR()) {
                 try {
+                    StringBuffer sb = new StringBuffer();
                     sb.append(serialPort.readString(event.getEventValue()));
-                    String str = sb.toString();
-                    System.out.println(str);
+                    if(sb.length() > 0 && sb.charAt(0) == 'q'){
+                        while(true){
+                            //sb.append(serialPort.readString(event.getEventValue()));
+                            sb.append(serialPort.readString(1));
+                            if(sb.charAt(sb.length()-1) == 'q'){
+                                break;
+                            }
+                        }
+                    }
+                    System.out.println(sb.toString());
+                    sb.setLength(0);
                 }
                 catch (SerialPortException ex) {
                     System.out.println(ex);
