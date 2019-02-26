@@ -1,11 +1,7 @@
-import $ from 'jquery';
-
 var speed = -1;
 var charge = -1;
 var current = -1;
 var voltage = -1;
-
-console.log(`made some vars ${speed}`)
 
 getData = function(){
   $.ajax({
@@ -20,10 +16,10 @@ getData = function(){
 
 updateText = function(){
   console.log("updating text")
-  $("#speed").innerText = "Speed: " + speed;
-  $("#charge").innerText = "charge: " + charge;
-  $("#current").innerText = "current: " + current;
-  $("#voltage").innerText = "voltage: " + voltage;
+  $("#speed").text("Speed: " + speed)
+  $("#charge").text("charge: " + charge);
+  $("#current").text("current: " + current);
+  $("#voltage").text("voltage: " + voltage);
 }
 
 updateText();
