@@ -1,25 +1,44 @@
-var speed = -1;
-var charge = -1;
-var current = -1;
-var voltage = -1;
+const carId = 1;
 
 getData = function(){
   $.ajax({
-    type : "GET",
-    url : "http://localhost:3000/getSpeed",
-      complete: function (response) {
-        console.log(response.responseText)
-        speed = parseInt(response.responseText)
-      }
+    type : "POST",
+    url : "http://localhost:3000/getData",
+    data : `{ "carId" : ${carId} }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      updateText(JSON.parse(response.responseText));
+    }
   })
 }
 
-updateText = function(){
-  console.log("updating text")
-  $("#speed").text("Speed: " + speed)
-  $("#charge").text("charge: " + charge);
-  $("#current").text("current: " + current);
-  $("#voltage").text("voltage: " + voltage);
+updateText = function(newData){
+  $("#speed").text("Speed: " + newData.speed)
+  $("#charge").text("charge: " + newData.charge);
+  $("#current").text("current: " + newData.current);
+  $("#voltage").text("voltage: " + newData.voltage);
 }
 
-updateText();
+instantiateText = function(){
+  $.ajax({
+    type : "POST",
+    url : "http://localhost:3000/getCarData",
+    data : `{ "carId" : ${carId} }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      $("#carInfo").text(`Info for car: ${response.responseText}`);
+    }
+  })
+  $("#speed").text("Speed: 0")
+  $("#charge").text("charge: 0");
+  $("#current").text("current: 0");
+  $("#voltage").text("voltage: 0");
+}
+
+instantiateText();
+
+setInterval(function() {
+  getData();
+}, 5000);
