@@ -76,10 +76,6 @@ con.connect(function(err) {
     if (err) throw err;
     console.log("Table Dropped")
   });*/
-  con.query(`select * from speedData`, function (err, result) {
-    if (err) throw err;
-    result.forEach(r => console.log(r));
-  });
 });
 
 function listen() {
@@ -94,12 +90,15 @@ app.get("/test", function(req, res){
     res.send("This is a test")
 })
 
-app.use("/update", (req, res) => {
-  const data = req.body.newData;
+app.post("/update", (req, res) => {
+  const data = req.body;
   //TODO: save data in database
   //data will be in the format: [ carId, indicator, val ]
   // indicators will be: spe, cha, cur, vol
   // you will have to get the time: Date.now()
+  
+  //leave this
+  res.end();
 });
 
 app.post("/getCarData", (req, res) =>{
@@ -128,14 +127,19 @@ app.post("/getData", (req, res) => {
 app.use("/clearTables", (req, res) => {
   con.query(`TRUNCATE TABLE speedData`, function (err, result) {
     if (err) throw err;
+    console.log("Table Cleared");
   });
   con.query(`TRUNCATE TABLE voltageData`, function (err, result) {
     if (err) throw err;
+    console.log("Table Cleared");
   });
   con.query(`TRUNCATE TABLE chargeData`, function (err, result) {
     if (err) throw err;
+    console.log("Table Cleared");
   });
   con.query(`TRUNCATE TABLE currentData`, function (err, result) {
     if (err) throw err;
+    console.log("Table Cleared");
   });
+  res.end();
 });
