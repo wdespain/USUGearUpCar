@@ -1,4 +1,10 @@
 app/node_modules
 
-gearUpJava/.idea/*.xml
-gearUpJava/*.iml
+androidApp/*.iml
+androidApp/.gradle
+androidApp/local.properties
+androidApp/.idea/workspace.xml
+androidApp/.idea/libraries
+androidApp/.DS_Store
+androidApp/build
+androidApp//captures
