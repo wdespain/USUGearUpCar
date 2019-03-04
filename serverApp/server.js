@@ -74,7 +74,9 @@ app.post("/update", (req, res) => {
 
 app.post("/getCarData", (req, res) =>{
   const carId = req.body.carId;
-  //REWRITE
+  database.all(`SELECT * FROM cars WHERE carId = ${carId}`, (err, rows) => {
+    res.send(rows[0].carName);
+  })
 });
 
 app.post("/getData", (req, res) => {
