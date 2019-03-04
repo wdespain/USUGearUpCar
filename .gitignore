@@ -1,5 +1,6 @@
 serverApp/node_modules
 serverApp/package-lock.json
+serverApp/*.db
 
 androidApp/*.iml
 androidApp/.gradle
