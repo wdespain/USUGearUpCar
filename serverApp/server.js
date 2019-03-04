@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const mysql = require("mysql");
+const sqlite3 = require("sqlite3").verbose();
 
 //internal vars
 var speed = 0;
@@ -12,77 +12,48 @@ var app = express();
 
 var server = app.listen(process.env.PORT || 3000, listen);
 
-app.use(bodyParser.json({ limit: "3000mb" }));
-app.use(bodyParser.urlencoded({ extended : false }));
-
-//connect to database
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "pass",
-  database: "carInfo"
-});
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to database!");
-  /*ONLY RUN THIS IF THE DB HAS NOT BEEN SET UP**********************
-  con.query("CREATE DATABASE carInfo", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("CREATE TABLE cars (carName varChar(255), carId int )", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("CREATE TABLE speedData (carId int, speed int, tEnt BIGINT )", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("CREATE TABLE chargeData (carId int, charge int, tEnt BIGINT )", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("CREATE TABLE currentData (carId int, current int, tEnt BIGINT )", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("CREATE TABLE voltageData (carId int, voltage int, tEnt BIGINT )", function (err, result) {
-    if (err) throw err;
-    console.log("table created");
-  });
-  con.query("INSERT INTO cars VALUES ('Gear Up Car', '1' )", function (err, result) {
-    if (err) throw err;
-    console.log("car created");
-  });
-   con.query("SELECT * FROM cars", function (err, result) {
-    if (err) throw err;
-    //result will be a list that you can itterate through
-    result.forEach(r => console.log(`${r.carName} (id: ${r.carId})`)) //Watch out for the d in 'carId' - it's not uppercase!
-  });*/
-  /*
-  con.query(`DROP TABLE speedData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Dropped")
-  });
-  con.query(`DROP TABLE voltageData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Dropped")
-  });
-  con.query(`DROP TABLE chargeData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Dropped")
-  });
-  con.query(`DROP TABLE currentData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Dropped")
-  });*/
-});
-
 function listen() {
   var host = server.address().address;
   var port = server.address().port;
   console.log('Example app listening at http://' + host + ':' + port);
 }
+
+app.use(bodyParser.json({ limit: "3000mb" }));
+app.use(bodyParser.urlencoded({ extended : false }));
+
+//connect to database
+const database = new sqlite3.Database('./dataStore.db', (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the database.');
+});
+
+database.serialize(() => {
+  database.run("CREATE TABLE IF NOT EXISTS cars(carId INT PRIMARY KEY, carName TEXT);");
+
+  database.run("INSERT INTO cars VALUES (1, 'Gear Up Car');", (err) =>{
+    if (err) {/*Do nothing because if this error it's because this record 
+    already existed and it shouldn't be entered multiple times*/}
+  });
+
+  database.run("CREATE TABLE IF NOT EXISTS speedData(carId INT, value INT, timeEnt INT);");
+
+  database.run("CREATE TABLE IF NOT EXISTS chargeData(carId INT, value INT, timeEnt INT);");
+
+  database.run("CREATE TABLE IF NOT EXISTS currentData(carId INT, value INT, timeEnt INT);");
+
+  database.run("CREATE TABLE IF NOT EXISTS voltageData(carId INT, value INT, timeEnt INT);");
+  /*uncomment this to test that connection and data is correct
+  database.all("SELECT * FROM cars", (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    rows.forEach((row) => {
+      console.log(row);
+    });
+  });*/
+});
 
 app.use(express.static('public'));
 //server functions
@@ -103,11 +74,9 @@ app.post("/update", (req, res) => {
 
 app.post("/getCarData", (req, res) =>{
   const carId = req.body.carId;
-  con.query(`SELECT * FROM cars WHERE carId = ${carId}`, function (err, result) {
-    if (err) throw err;
-    //This should have only one result
-    res.send(result[0].carName);
-  });
+  database.all(`SELECT * FROM cars WHERE carId = ${carId}`, (err, rows) => {
+    res.send(rows[0].carName);
+  })
 });
 
 app.post("/getData", (req, res) => {
@@ -124,22 +93,11 @@ app.post("/getData", (req, res) => {
     res.send(`{ "speed" : ${speed}, "charge" : ${charge}, "current" : ${current}, "voltage" : ${voltage} }`);
 });
 
-app.use("/clearTables", (req, res) => {
-  con.query(`TRUNCATE TABLE speedData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Cleared");
+app.on('exit', function() {
+  db.close((err) => {
+    if (err) {
+      return console.error(err.message);
+    }
+    console.log('Close the database connection.');
   });
-  con.query(`TRUNCATE TABLE voltageData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Cleared");
-  });
-  con.query(`TRUNCATE TABLE chargeData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Cleared");
-  });
-  con.query(`TRUNCATE TABLE currentData`, function (err, result) {
-    if (err) throw err;
-    console.log("Table Cleared");
-  });
-  res.end();
 });
