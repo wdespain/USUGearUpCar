@@ -64,10 +64,21 @@ app.get("/test", function(req, res){
 app.post("/update", (req, res) => {
   const data = req.body;
   //TODO: save data in database
+  if (data[1] == "spe"){
+    database.run(`INSERT INTO speedData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  } 
+  else if(data[1] == "cha"){
+    database.run(`INSERT INTO chargeData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  }
+  else if(data[1] == "cur"){
+    database.run(`INSERT INTO currentData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  }
+  else if (data[1] == "vol"){
+    database.run(`INSERT INTO voltageData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  }
   //data will be in the format: [ carId, indicator, val ]
   // indicators will be: spe, cha, cur, vol
   // you will have to get the time: Date.now()
-  
   //leave this
   res.end();
 });
@@ -82,14 +93,32 @@ app.post("/getCarData", (req, res) =>{
 app.post("/getData", (req, res) => {
     //this will always send a carId
     const carId = req.body.carId;
+    let speed = 0;
+    let charge = 0;
+    let current = 0;
+    let voltage = 0;
     //TODO: query database for the data
+    database.all("SELECT * FROM speedData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
+      speed = rows[0].value;
+    }, () => {
+      callback(speed);
+    });
+    database.all("SELECT * FROM chargeData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
+      charge = rows[0].value;
+    });
+    database.all("SELECT * FROM currentData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
+      current = rows[0].value;
+    });
+    database.all("SELECT * FROM voltageData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
+      voltage = rows[0].value;
+    });
+    console.log(speed);
+    console.log(charge);
+    console.log(current);
+    console.log(voltage);
+
     // get the entry with the same carId with the latest tEnt
     // hint: get the lastest one by ordering by the tEnt and limiting the select statement to 1
-    const speed = Math.floor(Math.random() * 50) + 1;
-    const charge = Math.floor(Math.random() * 50) + 1;
-    const current = Math.floor(Math.random() * 50) + 1;
-    const voltage = Math.floor(Math.random() * 50) + 1;
-    //This send doesn't need to change
     res.send(`{ "speed" : ${speed}, "charge" : ${charge}, "current" : ${current}, "voltage" : ${voltage} }`);
 });
 

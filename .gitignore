@@ -10,3 +10,4 @@ androidApp/.idea/libraries
 androidApp/.DS_Store
 androidApp/build
 androidApp//captures
+serverApp/get-pip.py
