@@ -1,13 +1,16 @@
 const carId = 1;
+const urlPath = "http://localhost:3000";
+//const urlPath = "http://10.42.0.1:3000";
 
 getData = function(){
   $.ajax({
     type : "POST",
-    url : "http://localhost:3000/getData",
+    url : `${urlPath}/getData`,
     data : `{ "carId" : ${carId} }`,
     contentType : "application/json; charset=utf-8",
     dataType : "json",
     complete: function (response) {
+      console.log(response.responseText)
       updateText(JSON.parse(response.responseText));
     }
   })
@@ -23,7 +26,7 @@ updateText = function(newData){
 instantiateText = function(){
   $.ajax({
     type : "POST",
-    url : "http://localhost:3000/getCarData",
+    url : `${urlPath}/getCarData`,
     data : `{ "carId" : ${carId} }`,
     contentType : "application/json; charset=utf-8",
     dataType : "json",
