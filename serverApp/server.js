@@ -63,6 +63,7 @@ app.get("/test", function(req, res){
 
 app.post("/update", (req, res) => {
   const data = req.body;
+  console.log(data)
   //TODO: save data in database
   //data will be in the format: [ carId, indicator, val ]
   // indicators will be: spe, cha, cur, vol
