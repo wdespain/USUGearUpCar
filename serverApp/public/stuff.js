@@ -8,6 +8,7 @@ getData = function(){
     contentType : "application/json; charset=utf-8",
     dataType : "json",
     complete: function (response) {
+      console.log(response.responseText)
       updateText(JSON.parse(response.responseText));
     }
   })

@@ -63,6 +63,7 @@ app.get("/test", function(req, res){
 
 app.post("/update", (req, res) => {
   const data = req.body;
+  console.log(data);
   //TODO: save data in database
   if (data[1] == "spe"){
     database.run(`INSERT INTO speedData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
@@ -92,34 +93,34 @@ app.post("/getCarData", (req, res) =>{
 
 app.post("/getData", (req, res) => {
     //this will always send a carId
+    console.log("A request for data.")
     const carId = req.body.carId;
-    let speed = 0;
-    let charge = 0;
-    let current = 0;
-    let voltage = 0;
+    res.write("{ ")    
     //TODO: query database for the data
-    database.all("SELECT * FROM speedData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
-      speed = rows[0].value;
-    }, () => {
-      callback(speed);
+    database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+      if(rows.length != 0) {
+        res.write(`"speed" : ${rows[0].value}, `);
+      }
     });
-    database.all("SELECT * FROM chargeData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
-      charge = rows[0].value;
+    database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+      if(rows.length != 0) {
+        res.write(`"charge" : ${rows[0].value}, `)
+      }
     });
-    database.all("SELECT * FROM currentData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
-      current = rows[0].value;
+    database.all(`SELECT * FROM currentData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+      if(rows.length != 0) {
+        res.write(`"current" : ${rows[0].value}, `)
+      }
     });
-    database.all("SELECT * FROM voltageData WHERE carId = carId order by timeEnt desc limit 1", (err, rows) => {
-      voltage = rows[0].value;
+    database.all(`SELECT * FROM voltageData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+      if(rows.length != 0) {
+        res.write(`"voltage" : ${rows[0].value}, `)
+      }
     });
-    console.log(speed);
-    console.log(charge);
-    console.log(current);
-    console.log(voltage);
-
-    // get the entry with the same carId with the latest tEnt
-    // hint: get the lastest one by ordering by the tEnt and limiting the select statement to 1
-    res.send(`{ "speed" : ${speed}, "charge" : ${charge}, "current" : ${current}, "voltage" : ${voltage} }`);
+    setTimeout(() => {
+      res.write(` "trailing" : 0 } `)
+      res.end()
+    }, 500);
 });
 
 app.on('exit', function() {
