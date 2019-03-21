@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 //import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,7 +22,18 @@ import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import me.aflak.bluetooth.Bluetooth;
 
@@ -30,6 +42,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ArrayList<String> charge = new ArrayList<>();
     private ArrayList<String> current = new ArrayList<>();
     private ArrayList<String> voltage = new ArrayList<>();
+    String url;
+    String carId;
     //private String name;
     private Bluetooth b;
     //private EditText message;
@@ -48,6 +62,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         charge.add("0");
         current.add("0");
         voltage.add("0");
+        carId = "1";
+        url = "http://144.39.109.239:3000";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -177,6 +193,12 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         } else if(findNum[0].equals("voltage")){
             voltage.add(findNum[1]);
         }
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", findNum[0].substring(0, 3));
+        postData.put("val", findNum[1]);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
         Display(message);
     }
 
