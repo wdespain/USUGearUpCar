@@ -1,6 +1,6 @@
 const carId = 1;
-const urlPath = "http://localhost:3000";
-//const urlPath = "http://10.42.0.1:3000";
+//const urlPath = "http://localhost:3000";
+const urlPath = "http://10.42.0.1:3000";
 
 getData = function(){
   $.ajax({
