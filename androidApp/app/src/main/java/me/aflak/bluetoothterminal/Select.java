@@ -1,10 +1,12 @@
 package me.aflak.bluetoothterminal;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,9 +34,22 @@ public class Select extends Activity implements PullToRefresh.OnRefreshListener 
     private List<BluetoothDevice> paired;
     private PullToRefresh pull_to_refresh;
     private boolean registered=false;
+    private String ipAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final EditText txtUrl = new EditText(this);
+
+        new AlertDialog.Builder(this)
+        .setTitle("Enter IP address")
+        .setMessage("Enter IP address")
+        .setView(txtUrl)
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ipAddress = txtUrl.getText().toString();
+            }
+        }).show();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select);
 
@@ -61,6 +77,9 @@ public class Select extends Activity implements PullToRefresh.OnRefreshListener 
                     unregisterReceiver(mReceiver);
                     registered=false;
                 }
+                Bundle bundle = new Bundle();
+                bundle.putString("ipAddress", ipAddress);
+                i.putExtras(bundle);
                 startActivity(i);
                 finish();
             }
