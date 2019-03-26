@@ -1,10 +1,12 @@
 package me.aflak.bluetoothterminal;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 //import android.widget.Button;
 //import android.widget.EditText;
+import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -63,7 +66,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         current.add("0");
         voltage.add("0");
         carId = "1";
-        url = "http://144.39.109.239:3000";
+        Bundle bundle = getIntent().getExtras();
+        url = "http://"+bundle.getString("ipAddress")+":3000";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
