@@ -15,11 +15,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 //import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 //import android.widget.Button;
 //import android.widget.EditText;
 import android.widget.EditText;
@@ -38,9 +36,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,7 +79,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        text = (TextView)findViewById(R.id.text);
+        //text = (TextView)findViewById(R.id.speedTextDesc);
         speedText = (TextView)findViewById(R.id.speedText);
         chargeText = (TextView)findViewById(R.id.chargeText);
         currentText = (TextView)findViewById(R.id.currentText);
@@ -288,7 +283,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                text.setText("just got" + s + "\n");
+                //text.setText("just got" + s + "\n");
                 speedText.setText(speed.get(speed.size() - 1));
                 currentText.setText(current.get(current.size() - 1));
                 chargeText.setText(charge.get(charge.size() - 1));
