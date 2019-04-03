@@ -63,23 +63,21 @@ app.get("/test", function(req, res){
 
 app.post("/update", (req, res) => {
   const data = req.body;
-  console.log(data);
-  //TODO: save data in database
-  if (data[1] == "spe"){
-    database.run(`INSERT INTO speedData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  console.log(`${data.indicator}: ${data.val}`);
+  //insert values (carId, val, timestamp)
+  // indicators will be: spe, cha, cur, vol\
+  if (data.indicator == "spe"){
+    database.run(`INSERT INTO speedData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   } 
-  else if(data[1] == "cha"){
-    database.run(`INSERT INTO chargeData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  else if(data.indicator == "cha"){
+    database.run(`INSERT INTO chargeData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
-  else if(data[1] == "cur"){
-    database.run(`INSERT INTO currentData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  else if(data.indicator == "cur"){
+    database.run(`INSERT INTO currentData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
-  else if (data[1] == "vol"){
-    database.run(`INSERT INTO voltageData VALUES (${data[0]},${data[2]},${Date.now()}) `); 
+  else if (data.indicator == "vol"){
+    database.run(`INSERT INTO voltageData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
-  //data will be in the format: [ carId, indicator, val ]
-  // indicators will be: spe, cha, cur, vol
-  // you will have to get the time: Date.now()
   //leave this
   res.end();
 });
