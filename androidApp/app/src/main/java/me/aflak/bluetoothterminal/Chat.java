@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -25,9 +26,14 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
@@ -45,8 +51,11 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ArrayList<String> charge = new ArrayList<>();
     private ArrayList<String> current = new ArrayList<>();
     private ArrayList<String> voltage = new ArrayList<>();
+    Map<Integer, Map<String, String>> unsentData = new HashMap<>();
+    ArrayList<Integer> unsentDataList = new ArrayList<>();
     String url;
     String carId;
+    Integer unsentDataId;
     //private String name;
     private Bluetooth b;
     //private EditText message;
@@ -59,6 +68,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ScrollView scrollView;
     private boolean registered=false;
 
+    Handler httpHandler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         speed.add("0");
@@ -66,6 +77,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         current.add("0");
         voltage.add("0");
         carId = "1";
+        unsentDataId = 0;
         Bundle bundle = getIntent().getExtras();
         url = "http://"+bundle.getString("ipAddress")+":3000";
 
@@ -108,6 +120,14 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         registered=true;
+
+        httpHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sendData();
+                httpHandler.postDelayed(this, 500);
+            }
+        }, 500);
     }
 
     @Override
@@ -116,6 +136,116 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         if(registered) {
             unregisterReceiver(mReceiver);
             registered=false;
+        }
+    }
+
+    void addToUnsentData(Map<String, String> newData){
+        Log.i("post", "add data id: "+String.valueOf(unsentDataId));
+        unsentDataList.add(unsentDataId);
+        unsentData.put(unsentDataId, newData);
+        unsentDataId += 1;
+    }
+
+    void sendData(){
+        Log.i("post", "data list size:"+String.valueOf(unsentDataList.size()));
+        if(unsentDataList.size() > 0){
+            Integer newId = unsentDataList.get(0);
+            Log.i("post", "trying id: "+String.valueOf(newId));
+            unsentDataList.remove(0);
+            HttpPostAsyncTask task = new HttpPostAsyncTask(
+                    unsentData.get(newId), newId
+            );
+            task.execute( url + "/update");
+        }
+    }
+
+    private class HttpPostAsyncTask extends AsyncTask<String, Void, String> {
+        // This is the JSON body of the post
+        JSONObject postData;
+        Integer postDataId;
+
+        // This is a constructor that allows you to pass in the JSON body
+        public HttpPostAsyncTask(Map<String, String> postData, Integer pdi) {
+            if (postDataId != null) {
+                this.postDataId = pdi;
+            }
+            if (postData != null) {
+                this.postData = new JSONObject(postData);
+            }
+        }
+
+        private String convertInputStreamToString(InputStream inputStream) {
+            BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            try {
+                while((line = bufferedReader.readLine()) != null) {
+                    sb.append(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return sb.toString();
+        }
+        // This is a function that we are overriding from AsyncTask. It takes Strings as parameters because that is what we defined for the parameters of our async task
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+                // This is getting the url from the string we passed in
+                URL url = new URL(params[0]);
+
+                // Create the urlConnection
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+
+                urlConnection.setRequestMethod("POST");
+
+
+                // OPTIONAL - Sets an authorization header
+                urlConnection.setRequestProperty("Authorization", "someAuthString");
+
+                // Send the post body
+                if (this.postData != null) {
+                    OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+                    writer.write(postData.toString());
+                    writer.flush();
+                }
+
+                int statusCode = urlConnection.getResponseCode();
+
+                if (statusCode ==  200) {
+
+                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+
+                    String response = convertInputStreamToString(inputStream);
+
+                    return "good";
+                } else {
+                    return "not";
+                }
+
+            } catch (Exception e) {
+                Log.d("sendData", e.getLocalizedMessage());
+                return "not";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // Call activity method with results
+            if(result == "good"){ //if it went well, remove data from the map
+                Log.i("post", "sending data worked");
+                unsentData.remove(this.postDataId);
+            } else if (result == "not") {// if not, add id back to list to be tried again
+                Log.i("post", "sending data did not work");
+                unsentDataList.add(0, this.postDataId);
+            }
         }
     }
 
@@ -187,6 +317,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
 
     @Override
     public void onMessage(String message) {
+        String timeStamp = String.valueOf(System.currentTimeMillis()/1000);
         String[] findNum = message.split(": ");
         if(findNum[0].equals("speed")){
             speed.add(findNum[1]);
@@ -197,13 +328,13 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         } else if(findNum[0].equals("voltage")){
             voltage.add(findNum[1]);
         }
+        Display(message);
         Map<String, String> postData = new HashMap<>();
         postData.put("carId", carId);
         postData.put("indicator", findNum[0].substring(0, 3));
         postData.put("val", findNum[1]);
-        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
-        task.execute( url + "/update");
-        Display(message);
+        postData.put("timeStamp", timeStamp);
+        addToUnsentData(postData);
     }
 
     @Override
