@@ -17,10 +17,10 @@ getData = function(){
 }
 
 updateText = function(newData){
-  $("#speed").text("Speed: " + newData.speed)
-  $("#charge").text("charge: " + newData.charge);
-  $("#current").text("current: " + newData.current);
-  $("#voltage").text("voltage: " + newData.voltage);
+  $("#speedNum").text(newData.speed)
+  $("#chargeNum").text(newData.charge);
+  $("#currentNum").text(newData.current);
+  $("#voltageNum").text(newData.voltage);
 }
 
 instantiateText = function(){
@@ -34,10 +34,10 @@ instantiateText = function(){
       $("#carInfo").text(`Info for car: ${response.responseText}`);
     }
   })
-  $("#speed").text("Speed: 0")
-  $("#charge").text("charge: 0");
-  $("#current").text("current: 0");
-  $("#voltage").text("voltage: 0");
+  $("#speedNum").text("0")
+  $("#chargeNum").text("0");
+  $("#currentNum").text("0");
+  $("#voltageNum").text("0");
 }
 
 instantiateText();
