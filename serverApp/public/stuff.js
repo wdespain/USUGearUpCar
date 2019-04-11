@@ -4,6 +4,7 @@ const carId = 1;
 const urlPath = "http://localhost:3000";
 let speedChart = null;
 let secretCharge = 100;
+let secretChargeUpCountDown = 0;
 let secretChargeArray = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
 const green = "rgba(0, 153, 0, 0.6)";
 const orange = "rgba(255, 153, 0, 0.6)";
@@ -49,10 +50,18 @@ getChartData = function(chartType){
 
 updateSpeedChart = function(data){
   var ctx = document.getElementById('myChart').getContext('2d');
-  secretCharge -= 1;
+  if(Math.floor(Math.random() * (10 + 1)) == 5){
+    secretChargeUpCountDown = 10;
+  }
+  secretChargeUpCountDown -= 1;
+  if(secretChargeUpCountDown > 0){
+    secretCharge += 1;
+  } else {
+    secretCharge -= 1;
+  }
   secretChargeArray = secretChargeArray.slice(1)
   secretChargeArray.push(secretCharge)
-  var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
+  /*var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
   for(let i=0; i<secretChargeArray.length; i++){
     if(secretChargeArray[i] >= 50){
       gradientFill.addColorStop(0, green);
@@ -65,13 +74,13 @@ updateSpeedChart = function(data){
   console.log(secretChargeArray)
   //ctx.height = 256;
   //ctx.width = 340;
-  //WeatherChart.data.datasets[0].data = [1, 2, 3, 4];
   speedChart.data.datasets[0] = {
     data : secretChargeArray,
     label : "speed",
     fill : "start",
     backgroundColor: gradientFill
-  };
+  };*/
+  speedChart.data.datasets[0].data = secretChargeArray;
   speedChart.update();
 }
 
