@@ -121,6 +121,22 @@ app.post("/getData", (req, res) => {
     }, 500);
 });
 
+app.post("/getDataForChart", (req, res) => {
+  const carId = req.body.carId;
+  console.log(req.body.chartType)
+  res.write("[")    
+  //TODO: query database for the data
+  database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 10`, (err, rows) => {
+    if(rows.length != 0) {
+      res.write(rows.map(row => row.value).join(","));
+    }
+  });
+  setTimeout(() => {
+    res.write("]")  
+    res.end()
+  }, 1000);
+});
+
 app.on('exit', function() {
   db.close((err) => {
     if (err) {
