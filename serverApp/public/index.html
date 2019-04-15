@@ -1,17 +1,51 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Gear Up Car</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
 <body>
     <script src="jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
-    <p id="carInfo">Info for Car: </p>
+    <div id="carInfo" class="info_box_color long_boxes">Info for Car: </div>
+    <div id="charge" class="float_center info_boxes" style=" background-color: rgba(0, 153, 0, 0.6)">
+        <b id="chargeNum" style="font-size:20px"></b>%
+        <br> 
+        Current Charge
+    </div>
+    <div id="speed" class="float_center info_boxes info_box_color">
+        <b id="speedNum" style="font-size:20px"></b>mph 
+        <br> 
+        Current Speed
+    </div>
     <div style="height: 300px">
       <canvas id="myChart"></canvas>
     </div>
-    <p id="speed">Speed: <span id="speedNum"></span></p>
-    <p id="charge">Charge: <span id="chargeNum"></span></p>
-    <p id="voltage">Voltage: <span id="voltageNum"></span></p>
-    <p id="current">Current: <span id="currentNum"></span></p>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="info_box_color long_boxes"> Statistics </div>
+    <div id="speedHigh" class="float_center info_boxes info_box_color">
+        <b id="speedHighNum" style="font-size:15px"></b>mph 
+        <br> 
+        Highest Speed
+    </div>
+    <div id="chargeUp" class="float_center info_boxes info_box_color">
+        <b id="chargeUpNumber"></b> 
+        <br> 
+        Charge Gained from Charging Pad 
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="info_box_color long_boxes"> About Car </div>
 
     <script src="stuff.js" type="text/javascript"></script>
 

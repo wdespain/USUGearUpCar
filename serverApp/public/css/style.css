@@ -1,0 +1,25 @@
+.float_center {
+  float: right;
+
+  position: relative;
+  left: -50%; /* or right 50% */
+  text-align: left;
+}
+.float_center > .child {
+  position: relative;
+  left: 50%;
+}
+.long_boxes {
+  font-family: "Arial", sans-serif;
+  text-align:center;
+}
+.info_boxes {
+  font-family: "Arial", sans-serif;
+  text-align:center; 
+  padding: 20px; 
+  border: 5px 
+  solid #fff;
+}
+.info_box_color {
+  background-color: #DEE2E5;
+}
