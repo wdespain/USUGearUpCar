@@ -84,8 +84,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         latestCurrent = 0.1;
         //Bundle bundle = getIntent().getExtras();
         //url = "http://"+bundle.getString("ipAddress")+":3000";
-        //url = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
-        url = "http://localhost:3000";
+        url = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+        //url = "http://localhost:3000";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
