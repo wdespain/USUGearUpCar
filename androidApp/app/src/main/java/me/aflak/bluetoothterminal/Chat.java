@@ -54,6 +54,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     ArrayList<Integer> unsentDataList = new ArrayList<>();
     String url;
     String carId;
+    Double latestCurrent;
+    Double latestVoltage;
     Integer unsentDataId;
     //private String name;
     private Bluetooth b;
@@ -68,6 +70,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private boolean registered=false;
 
     Handler httpHandler = new Handler();
+    Handler chargeCalcHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +80,11 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         voltage.add("0");
         carId = "1";
         unsentDataId = 0;
-        Bundle bundle = getIntent().getExtras();
-        url = "http://"+bundle.getString("ipAddress")+":3000";
+        latestVoltage = 0.1;
+        latestCurrent = 0.1;
+        //Bundle bundle = getIntent().getExtras();
+        //url = "http://"+bundle.getString("ipAddress")+":3000";
+        url = "http://localhost:3000";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -127,6 +133,13 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
                 httpHandler.postDelayed(this, 500);
             }
         }, 500);
+        chargeCalcHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                chargeCalc();
+                chargeCalcHandler.postDelayed(this, 1000);
+            }
+        }, 1000);
     }
 
     @Override
@@ -138,6 +151,20 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         }
     }
 
+    void chargeCalc(){
+        //Put fancy charge calculation here!!!!!!
+        Double chargeC = latestCurrent + latestVoltage;
+        String chargeString = String.valueOf(chargeC);
+        charge.add(chargeString.substring(0, Math.min(chargeString.length(), 6)));
+
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", "cha");
+        postData.put("val", chargeString);
+        postData.put("timeStamp", String.valueOf(System.currentTimeMillis()/1000));
+        addToUnsentData(postData);
+        addToUnsentData(postData);
+    }
     void addToUnsentData(Map<String, String> newData){
         Log.i("post", "add data id: "+String.valueOf(unsentDataId));
         unsentDataList.add(unsentDataId);
@@ -318,14 +345,18 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     public void onMessage(String message) {
         String timeStamp = String.valueOf(System.currentTimeMillis()/1000);
         String[] findNum = message.split(": ");
+        if(findNum.length == 1){
+            findNum = message.split("= ");
+        }
         if(findNum[0].equals("speed")){
             speed.add(findNum[1]);
-        } else if(findNum[0].equals("charge")){
-            charge.add(findNum[1]);
         } else if(findNum[0].equals("current")){
+            latestCurrent = Double.parseDouble(findNum[1]);
             current.add(findNum[1]);
-        } else if(findNum[0].equals("voltage")){
+        } else if(findNum[0].equals("INPUT V")){
+            latestVoltage = Double.parseDouble(findNum[1]);
             voltage.add(findNum[1]);
+            findNum[0] = "voltage";
         }
         Display(message);
         Map<String, String> postData = new HashMap<>();
