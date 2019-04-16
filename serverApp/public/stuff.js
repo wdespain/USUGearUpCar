@@ -4,9 +4,9 @@ const carId = 1;
 const urlPath = "http://localhost:3000";
 //const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
-let secretCharge = 100;
-let secretChargeUpCountDown = 0;
-let secretChargeArray = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
+//let secretCharge = 100;
+//let secretChargeUpCountDown = 0;
+//let secretChargeArray = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
 const green = "rgba(0, 153, 0, 0.6)";
 const orange = "rgba(255, 153, 0, 0.6)";
 const red = "rgba(255, 0, 0, 0.6)";
@@ -50,7 +50,7 @@ getChartData = function(){
 }
 
 updateChargeChart = function(data){
-  var ctx = document.getElementById('myChart').getContext('2d');
+  /*var ctx = document.getElementById('myChart').getContext('2d');
   if(Math.floor(Math.random() * (25 + 1)) == 5){
     secretChargeUpCountDown = 10;
   }
@@ -62,7 +62,10 @@ updateChargeChart = function(data){
   }
   secretChargeArray = secretChargeArray.slice(1)
   secretChargeArray.push(secretCharge)
-  data = secretChargeArray
+  data = secretChargeArray*/
+  while(data.length < 10){
+    data.push(data[data.length-1]);
+  }
   if(data[data.length-1] <= 50 && orangeTrip == false){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
@@ -114,7 +117,7 @@ instantiateText = function(){
     data: {
       labels : [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0],
       datasets : [{
-        data : secretChargeArray,
+        data : [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
         label : "charge",
         fill : "start",
         backgroundColor: gradientFill
