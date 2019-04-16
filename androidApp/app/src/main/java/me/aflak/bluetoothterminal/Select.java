@@ -40,6 +40,7 @@ public class Select extends Activity implements PullToRefresh.OnRefreshListener 
     protected void onCreate(Bundle savedInstanceState) {
         final EditText txtUrl = new EditText(this);
 
+        /*
         new AlertDialog.Builder(this)
         .setTitle("Enter IP address")
         .setMessage("Enter IP address")
@@ -48,7 +49,7 @@ public class Select extends Activity implements PullToRefresh.OnRefreshListener 
             public void onClick(DialogInterface dialog, int whichButton) {
                 ipAddress = txtUrl.getText().toString();
             }
-        }).show();
+        }).show();*/
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select);
