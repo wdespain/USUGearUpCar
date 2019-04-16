@@ -3,10 +3,8 @@ const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 
 //internal vars
-var speed = 0;
-var charge = 0;
-var voltage = 0;
-var current = 0;
+var highestSpeed = 0;
+var chargeGained = 0;
 
 var app = express();
 
@@ -97,6 +95,9 @@ app.post("/getData", (req, res) => {
     //TODO: query database for the data
     database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
       if(rows.length != 0) {
+        if(rows[0].value > highestSpeed){
+          highestSpeed = rows[0].value;
+        }
         res.write(`"speed" : ${rows[0].value}, `);
       }
     });
@@ -105,20 +106,25 @@ app.post("/getData", (req, res) => {
         res.write(`"charge" : ${rows[0].value}, `)
       }
     });
-    database.all(`SELECT * FROM currentData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
-      if(rows.length != 0) {
-        res.write(`"current" : ${rows[0].value}, `)
-      }
-    });
-    database.all(`SELECT * FROM voltageData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
-      if(rows.length != 0) {
-        res.write(`"voltage" : ${rows[0].value}, `)
-      }
-    });
     setTimeout(() => {
-      res.write(` "trailing" : 0 } `)
+      res.write(` "highestSpeed" : ${highestSpeed}, "chargeGained" : ${chargeGained} } `)
       res.end()
     }, 500);
+});
+
+app.post("/getDataForChart", (req, res) => {
+  const carId = req.body.carId;
+  res.write("[")    
+  //TODO: query database for the data
+  database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 10`, (err, rows) => {
+    if(rows.length != 0) {
+      res.write(rows.map(row => row.value).join(","));
+    }
+  });
+  setTimeout(() => {
+    res.write("]")  
+    res.end()
+  }, 1000);
 });
 
 app.on('exit', function() {
