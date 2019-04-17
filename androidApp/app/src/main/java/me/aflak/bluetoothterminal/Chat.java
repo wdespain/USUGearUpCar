@@ -39,6 +39,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,14 +127,14 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         registered=true;
-
+        /*
         httpHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 sendData();
                 httpHandler.postDelayed(this, 500);
             }
-        }, 500);
+        }, 500);*/
         chargeCalcHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -154,17 +155,17 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
 
     void chargeCalc(){
         //Put fancy charge calculation here!!!!!!
-        Double chargeC = latestCurrent + latestVoltage;
+        Double chargeC  = latestCurrent * latestVoltage;
         String chargeString = String.valueOf(chargeC);
-        charge.add(chargeString.substring(0, Math.min(chargeString.length(), 6)));
+        charge.add(chargeString);
 
         Map<String, String> postData = new HashMap<>();
         postData.put("carId", carId);
         postData.put("indicator", "cha");
         postData.put("val", chargeString);
         postData.put("timeStamp", String.valueOf(System.currentTimeMillis()/1000));
-        addToUnsentData(postData);
-        addToUnsentData(postData);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
     }
     void addToUnsentData(Map<String, String> newData){
         Log.i("post", "add data id: "+String.valueOf(unsentDataId));
@@ -179,10 +180,10 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             Integer newId = unsentDataList.get(0);
             Log.i("post", "trying id: "+String.valueOf(newId));
             unsentDataList.remove(0);
-            HttpPostAsyncTask task = new HttpPostAsyncTask(
-                    unsentData.get(newId), newId
-            );
-            task.execute( url + "/update");
+            //HttpPostAsyncTask task = new HttpPostAsyncTask(
+            //        unsentData.get(newId), newId
+            //);
+            //task.execute( url + "/update");
         }
     }
 
@@ -192,10 +193,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         Integer postDataId;
 
         // This is a constructor that allows you to pass in the JSON body
-        public HttpPostAsyncTask(Map<String, String> postData, Integer pdi) {
-            if (postDataId != null) {
-                this.postDataId = pdi;
-            }
+        public HttpPostAsyncTask(Map<String, String> postData) {
             if (postData != null) {
                 this.postData = new JSONObject(postData);
             }
@@ -268,10 +266,10 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             // Call activity method with results
             if(result == "good"){ //if it went well, remove data from the map
                 Log.i("post", "sending data worked");
-                unsentData.remove(this.postDataId);
+                //unsentData.remove(this.postDataId);
             } else if (result == "not") {// if not, add id back to list to be tried again
                 Log.i("post", "sending data did not work");
-                unsentDataList.add(0, this.postDataId);
+                //unsentDataList.add(0, this.postDataId);
             }
         }
     }
@@ -316,9 +314,9 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             @Override
             public void run() {
                 //text.setText("just got" + s + "\n");
-                speedText.setText(speed.get(speed.size() - 1));
+                speedText.setText(speed.get(speed.size() - 1).substring(0, 2));
                 currentText.setText(current.get(current.size() - 1));
-                chargeText.setText(charge.get(charge.size() - 1));
+                chargeText.setText(charge.get(charge.size() - 1).substring(0, 2));
                 voltageText.setText(voltage.get(voltage.size() - 1));
             }
         });
@@ -349,8 +347,9 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         if(findNum.length == 1){
             findNum = message.split("= ");
         }
-        if(findNum[0].equals("speed")){
+        if(findNum[0].equals("MPH")){
             speed.add(findNum[1]);
+            findNum[0] = "speed";
         } else if(findNum[0].equals("current")){
             latestCurrent = Double.parseDouble(findNum[1]);
             current.add(findNum[1]);
@@ -365,7 +364,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         postData.put("indicator", findNum[0].substring(0, 3));
         postData.put("val", findNum[1]);
         postData.put("timeStamp", timeStamp);
-        addToUnsentData(postData);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
     }
 
     @Override
