@@ -70,9 +70,6 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ScrollView scrollView;
     private boolean registered=false;
 
-    Handler httpHandler = new Handler();
-    Handler chargeCalcHandler = new Handler();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         speed.add("0");
@@ -127,21 +124,6 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         registered=true;
-        /*
-        httpHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendData();
-                httpHandler.postDelayed(this, 500);
-            }
-        }, 500);*/
-        chargeCalcHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                chargeCalc();
-                chargeCalcHandler.postDelayed(this, 1000);
-            }
-        }, 1000);
     }
 
     @Override
@@ -150,40 +132,6 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         if(registered) {
             unregisterReceiver(mReceiver);
             registered=false;
-        }
-    }
-
-    void chargeCalc(){
-        //Put fancy charge calculation here!!!!!!
-        Double chargeC  = latestCurrent * latestVoltage;
-        String chargeString = String.valueOf(chargeC);
-        charge.add(chargeString);
-
-        Map<String, String> postData = new HashMap<>();
-        postData.put("carId", carId);
-        postData.put("indicator", "cha");
-        postData.put("val", chargeString);
-        postData.put("timeStamp", String.valueOf(System.currentTimeMillis()/1000));
-        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
-        task.execute( url + "/update");
-    }
-    void addToUnsentData(Map<String, String> newData){
-        Log.i("post", "add data id: "+String.valueOf(unsentDataId));
-        unsentDataList.add(unsentDataId);
-        unsentData.put(unsentDataId, newData);
-        unsentDataId += 1;
-    }
-
-    void sendData(){
-        Log.i("post", "data list size:"+String.valueOf(unsentDataList.size()));
-        if(unsentDataList.size() > 0){
-            Integer newId = unsentDataList.get(0);
-            Log.i("post", "trying id: "+String.valueOf(newId));
-            unsentDataList.remove(0);
-            //HttpPostAsyncTask task = new HttpPostAsyncTask(
-            //        unsentData.get(newId), newId
-            //);
-            //task.execute( url + "/update");
         }
     }
 
@@ -314,9 +262,11 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             @Override
             public void run() {
                 //text.setText("just got" + s + "\n");
-                speedText.setText(speed.get(speed.size() - 1).substring(0, 2));
+                String speedVal =  String.valueOf((int) Double.parseDouble(speed.get(speed.size() - 1)));
+                String chargeVal =  String.valueOf((int) Double.parseDouble(charge.get(charge.size() - 1)));
+                speedText.setText(speedVal);
                 currentText.setText(current.get(current.size() - 1));
-                chargeText.setText(charge.get(charge.size() - 1).substring(0, 2));
+                chargeText.setText(charge.get(charge.size() - 1));
                 voltageText.setText(voltage.get(voltage.size() - 1));
             }
         });
@@ -351,12 +301,12 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             speed.add(findNum[1]);
             findNum[0] = "speed";
         } else if(findNum[0].equals("current")){
-            latestCurrent = Double.parseDouble(findNum[1]);
             current.add(findNum[1]);
         } else if(findNum[0].equals("INPUT V")){
-            latestVoltage = Double.parseDouble(findNum[1]);
             voltage.add(findNum[1]);
             findNum[0] = "voltage";
+        } else if(findNum[0] == "charge"){
+            charge.add(findNum[1]);
         }
         Display(message);
         Map<String, String> postData = new HashMap<>();
