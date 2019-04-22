@@ -53,10 +53,12 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ArrayList<String> voltage = new ArrayList<>();
     Map<Integer, Map<String, String>> unsentData = new HashMap<>();
     ArrayList<Integer> unsentDataList = new ArrayList<>();
+    Integer batteryCapacity;
     String url;
     String carId;
     Double latestCurrent;
     Double latestVoltage;
+    Double latestCharge;
     Integer unsentDataId;
     //private String name;
     private Bluetooth b;
@@ -80,10 +82,12 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         unsentDataId = 0;
         latestVoltage = 0.1;
         latestCurrent = 0.1;
+        latestCharge = 0.0;
+        batteryCapacity = 3110400;
         //Bundle bundle = getIntent().getExtras();
         //url = "http://"+bundle.getString("ipAddress")+":3000";
-        //url = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
-        url = "http://localhost:3000";
+        url = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+        //url = "http://localhost:3000";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -204,7 +208,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
                 }
 
             } catch (Exception e) {
-                Log.d("sendData", e.getLocalizedMessage());
+                //Log.d("sendData", e.getLocalizedMessage());
                 return "not";
             }
         }
@@ -263,10 +267,10 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             public void run() {
                 //text.setText("just got" + s + "\n");
                 String speedVal =  String.valueOf((int) Double.parseDouble(speed.get(speed.size() - 1)));
-                String chargeVal =  String.valueOf((int) Double.parseDouble(charge.get(charge.size() - 1)));
+                String chargeVal =  String.valueOf( (int) ((latestCharge/batteryCapacity)*100));
                 speedText.setText(speedVal);
                 currentText.setText(current.get(current.size() - 1));
-                chargeText.setText(charge.get(charge.size() - 1));
+                chargeText.setText(chargeVal);
                 voltageText.setText(voltage.get(voltage.size() - 1));
             }
         });
@@ -301,12 +305,14 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             speed.add(findNum[1]);
             findNum[0] = "speed";
         } else if(findNum[0].equals("current")){
+            latestCurrent = Double.parseDouble(findNum[1]) * 100;
             current.add(findNum[1]);
         } else if(findNum[0].equals("INPUT V")){
             voltage.add(findNum[1]);
             findNum[0] = "voltage";
-        } else if(findNum[0] == "charge"){
-            charge.add(findNum[1]);
+        } else if(findNum[0].equals("charge")){
+            latestCharge = Double.parseDouble(findNum[1]) * 100;
+            charge.add(String.valueOf(latestCharge));
         }
         Display(message);
         Map<String, String> postData = new HashMap<>();
