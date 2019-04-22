@@ -2,7 +2,7 @@
   float: right;
 
   position: relative;
-  left: -50%; /* or right 50% */
+  left: -50%; /* left -50% or right 50% */
   text-align: left;
 }
 .float_center > .child {
@@ -23,3 +23,27 @@
 .info_box_color {
   background-color: #DEE2E5;
 }
+.graph-boxes{
+  height: 300px;
+  border: 2px solid black;
+}
+.canvas-thingy{
+  vertical-align: middle;
+  padding:0; 
+  margin:0; 
+  max-width:100%; 
+  max-height:100%
+}
+.button-style{
+  border: 1px solid black;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+button:disabled,
+button[disabled] {
+  color : white;
+  background-color: #5a6872;
+} 

@@ -12,6 +12,8 @@ const orange = "rgba(255, 153, 0, 0.6)";
 const red = "rgba(255, 0, 0, 0.6)";
 let orangeTrip = false;
 let redTrip = false;
+let activeGraph = "latestCharge";
+const fullCharge = 3110400; //full charge in watt seconds
 
 getData = function(){
   $.ajax({
@@ -35,22 +37,25 @@ updateText = function(newData){
   $("#chargeUpNumber").text(newData.chargeGained);
 }
 
-getChartData = function(){
+getChartData = function(chartType){
   $.ajax({
     type : "POST",
     url : `${urlPath}/getDataForChart`,
-    data : `{ "carId" : ${carId} }`,
+    data : `{ "carId" : ${carId}, "chartType" : "${activeGraph}" }`,
     contentType : "application/json; charset=utf-8",
     dataType : "json",
     complete: function (response) {
       //console.log(response.responseText);
-      updateChargeChart(JSON.parse(response.responseText));
+      const resData = JSON.parse(response.responseText);
+      //console.log(resData.chargeData)
+      updateChargeChart(resData.chargeData, resData.percent);
     }
   })
 }
 
-updateChargeChart = function(data){
-  /*var ctx = document.getElementById('myChart').getContext('2d');
+updateChargeChart = function(data, percent){
+  var ctx = document.getElementById('myChart').getContext('2d');
+  /*
   if(Math.floor(Math.random() * (25 + 1)) == 5){
     secretChargeUpCountDown = 10;
   }
@@ -66,7 +71,7 @@ updateChargeChart = function(data){
   while(data.length < 10){
     data.push(data[data.length-1]);
   }
-  if(data[data.length-1] <= 50 && orangeTrip == false){
+  if(percent <= 50 && orangeTrip == false){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, green);
@@ -78,7 +83,7 @@ updateChargeChart = function(data){
       backgroundColor: gradientFill
     };
     $("#charge").css("background-color", orange);
-  } else if(data[data.length-1] <= 20 && redTrip == false){
+  } else if(percent <= 20 && redTrip == false){
     redTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, orange);
@@ -108,16 +113,84 @@ instantiateText = function(){
     }
   })
   getData();
+  setupLatestCharge();
+  getChartData();
+}
+
+setupAllCharge = function(){
+  $.ajax({
+    type : "POST",
+    url : `${urlPath}/getDataForChart`,
+    data : `{ "carId" : ${carId}, "chartType" : "${activeGraph}" }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      const resData = JSON.parse(response.responseText);
+      const ctx = document.getElementById('myChart').getContext('2d');
+      var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
+      gradientFill.addColorStop(0, green);
+      gradientFill.addColorStop(1, green);
+      speedChart.destroy();
+      speedChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels : resData.labels,
+          datasets : [{
+            data : resData.chargeData,
+            label : "charge",
+            fill : "start",
+            backgroundColor: gradientFill
+          }]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          maintainAspectRatio: false,
+          scales: {
+            yAxes: [{
+              display: true,
+              stacked: true,
+              ticks: {
+                min: 0, // minimum value
+                max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Watt Seconds'
+              }
+            }],
+            xAxes: [{
+              ticks: {  
+                display: false
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'All Charge Readings'
+              }
+            }]
+          }
+        }
+      });
+    }
+  })
+}
+
+setupLatestCharge = function(){
   const ctx = document.getElementById('myChart').getContext('2d');
   var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
   gradientFill.addColorStop(0, green);
   gradientFill.addColorStop(1, green);
+  if(speedChart != null){
+    speedChart.destroy();
+  }
+  //speedChart.destroy();
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0],
+      labels : new Array(50).fill(0),
       datasets : [{
-        data : [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+        data : new Array(50).fill(fullCharge),
         label : "charge",
         fill : "start",
         backgroundColor: gradientFill
@@ -134,23 +207,112 @@ instantiateText = function(){
           stacked: true,
           ticks: {
             min: 0, // minimum value
-            max: 100 // maximum value
+            max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Watt Seconds'
           }
         }],
         xAxes: [{
           ticks: {
-            display: false //this will remove only the label
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Last 50 Charge Readings'
           }
         }]
       }
     }
   });
-  getChartData();
+}
+
+setupSpeed = function (){
+  $.ajax({
+    type : "POST",
+    url : `${urlPath}/getDataForChart`,
+    data : `{ "carId" : ${carId}, "chartType" : "${activeGraph}" }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      const resData = JSON.parse(response.responseText);
+      console.log("allcharge");
+      const ctx = document.getElementById('myChart').getContext('2d');
+      speedChart.destroy();
+      speedChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels : resData.labels,
+          datasets : [{
+            data : resData.chargeData,
+            label : "charge",
+            fill : "start"
+          }]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          maintainAspectRatio: false,
+          scales: {
+            yAxes: [{
+              display: true,
+              stacked: true,
+              ticks: {
+                min: 0, // minimum value
+                max: 30 // maximum value
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'MPH'
+              }
+            }],
+            xAxes: [{
+              ticks: {
+                display: false
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'All Speed Readings'
+              }
+            }]
+          }
+        }
+      });
+    }
+  })
 }
 
 instantiateText();
 
+$("#allCharge").on("click", () => {
+  $("#allCharge").attr("disabled", true);
+  activeGraph = "allCharge";
+  setupAllCharge();
+  $("#latestCharge").attr("disabled", false);
+  $("#allSpeed").attr("disabled", false);
+});
+
+$("#latestCharge").on("click", () => {
+  $("#allCharge").attr("disabled", false);
+  $("#latestCharge").attr("disabled", true);
+  activeGraph = "latestCharge";
+  setupLatestCharge();
+  $("#allSpeed").attr("disabled", false);
+});
+
+$("#allSpeed").on("click", () => {
+  $("#allCharge").attr("disabled", false);
+  $("#latestCharge").attr("disabled", false);
+  $("#allSpeed").attr("disabled", true);
+  activeGraph = "allSpeed";
+  setupSpeed();
+});
+
 setInterval(function() {
   getData();
-  getChartData();
+  if(activeGraph == "latestCharge"){
+    getChartData();
+  }
 }, 1000);

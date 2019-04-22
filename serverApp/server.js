@@ -5,6 +5,16 @@ const sqlite3 = require("sqlite3").verbose();
 //internal vars
 var highestSpeed = 0;
 var chargeGained = 0;
+var previousCharge = 0;
+var batteryCapacity = 3110400; //in watt seconds
+var latestCharge = 0;
+var latestChargePercent = 0;
+var latestSpeed = 0;
+var allSpeed = [];
+var latestTenCharge = new Array(50).fill(3110400);
+var allCharge = [];
+
+var testingCounter = 100;
 
 var app = express();
 
@@ -64,10 +74,24 @@ app.post("/update", (req, res) => {
   console.log(`${data.indicator}: ${data.val}`);
   //insert values (carId, val, timestamp)
   // indicators will be: spe, cha, cur, vol\
-  if (data.indicator == "spe"){
+  if (data.indicator == "spe"){ // speed is assumed to come in as miles per hour
+    latestSpeed = data.val;
+    if(latestSpeed > highestSpeed){
+      highestSpeed = latestSpeed;
+    }
     database.run(`INSERT INTO speedData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   } 
-  else if(data.indicator == "cha"){
+  else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt seconds
+    previousCharge = latestCharge;
+    latestCharge = data.val;
+    if(previousCharge > latestCharge){
+      chargeGained += latestCharge - previousCharge;
+    }
+    //This takes off the oldest charge and adds the latest one
+    latestTenCharge = latestTenCharge.slice(1);
+    latestTenCharge.push(latestCharge);
+    latestChargePercent = latestCharge / batteryCapacity;
+    allCharge.push(latestCharge);
     database.run(`INSERT INTO chargeData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
   else if(data.indicator == "cur"){
@@ -88,34 +112,68 @@ app.post("/getCarData", (req, res) =>{
 });
 
 app.post("/getData", (req, res) => {
-    //this will always send a carId
-    console.log("A request for data.")
-    const carId = req.body.carId;
-    res.write("{ ")    
-    //TODO: query database for the data
-    database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
-      if(rows.length != 0) {
-        if(rows[0].value > highestSpeed){
-          highestSpeed = rows[0].value;
-        }
-        res.write(`"speed" : ${rows[0].value}, `);
-      }
-    });
-    database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
-      if(rows.length != 0) {
-        res.write(`"charge" : ${rows[0].value}, `)
-      }
-    });
-    setTimeout(() => {
-      res.write(` "highestSpeed" : ${highestSpeed}, "chargeGained" : ${chargeGained} } `)
-      res.end()
-    }, 500);
+  //this will always send a carId
+  //console.log("A request for data.")
+  /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!
+  if(testingCounter < 0){
+    latestCharge += 1;
+    chargeGained += 1;
+  } else {
+    latestCharge -= 1;
+  }
+  if(testingCounter < -50){
+    testingCounter = 100;
+  }
+  testingCounter -= 1;
+  latestTenCharge = latestTenCharge.slice(1);
+  latestTenCharge.push(latestCharge);
+  latestChargePercent = Math.floor((latestCharge / batteryCapacity)*100);
+  allCharge.push(latestCharge);
+  //console.log(`current charge: ${latestCharge}   / ${batteryCapacity}`)
+  if(latestCharge <= 0){
+    //console.log("update latest charge")
+    latestCharge = batteryCapacity;
+    latestTenCharge = latestTenCharge.map(m => batteryCapacity);
+  }
+  /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!*/
+  res.send(`{ 
+    "speed" : ${latestSpeed}, 
+    "charge" : ${latestChargePercent},
+    "highestSpeed" : ${highestSpeed},
+    "chargeGained" : ${chargeGained} }`
+  );
+  /*
+  const carId = req.body.carId;
+  res.write("{ ")    
+  //TODO: query database for the data
+  database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+    if(rows.length != 0) {
+      res.write(`"speed" : ${rows[0].value}, `);
+    }
+  });
+  database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+    if(rows.length != 0) {
+      res.write(`"charge" : ${rows[0].value}, `)
+    }
+  });
+  setTimeout(() => {
+    res.write(` "nothing" : 0 } `)
+    res.end()
+  }, 500);*/
 });
 
 app.post("/getDataForChart", (req, res) => {
+  //console.log(req.body)
   const carId = req.body.carId;
-  res.write("[")    
-  //TODO: query database for the data
+  const chartType = req.body.chartType;
+  if(chartType == "allCharge"){
+    res.send(` { "labels" : ${JSON.stringify(allCharge)}, "chargeData" : ${JSON.stringify(allCharge)} } `);
+  } else if(chartType == "allSpeed"){
+    res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
+  } else if(chartType == "latestCharge"){
+    res.send(` { "chargeData" : ${JSON.stringify(latestTenCharge)}, "percent" : ${latestChargePercent} } `);
+  }
+  /*res.write("[")    
   database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 10`, (err, rows) => {
     if(rows.length != 0) {
       res.write(rows.map(row => row.value).join(","));
@@ -124,7 +182,7 @@ app.post("/getDataForChart", (req, res) => {
   setTimeout(() => {
     res.write("]")  
     res.end()
-  }, 1000);
+  }, 1000);*/
 });
 
 app.on('exit', function() {

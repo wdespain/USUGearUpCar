@@ -8,34 +8,45 @@
     <script src="jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
+    <img src="images/selectLogo.png" alt="Select Logo" style="width:200px;height:100px;" >
+    <img src="images/Utah-State-min.png" alt="USU Logo" style="width:200px;height:125px;" >
     <div id="carInfo" class="info_box_color long_boxes">Info for Car: </div>
-    <div id="charge" class="float_center info_boxes" style=" background-color: rgba(0, 153, 0, 0.6)">
-        <b id="chargeNum" style="font-size:20px"></b>%
+    <div id="charge" class="float_center info_boxes" style=" background-color: rgba(0, 153, 0, 0.6);font-size:20px">
+        <b id="chargeNum" style="font-size:40px"></b>%
         <br> 
         Current Charge
     </div>
-    <div id="speed" class="float_center info_boxes info_box_color">
-        <b id="speedNum" style="font-size:20px"></b>mph 
+    <div id="speed" class="float_center info_boxes info_box_color" style="font-size:20px">
+        <b id="speedNum" style="font-size:40px"></b>mph 
         <br> 
         Current Speed
     </div>
     <div style="height: 300px">
-      <canvas id="myChart"></canvas>
+      <canvas id="myChart" ></canvas>
     </div>
     <br>
     <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <p class="info_box_color long_boxes"> Graph Choices </p>
+    <button type="button" id="allCharge" class="float_center button-style">All Charge Data</button> 
+    <button type="button" id="latestCharge" disabled="true" class="float_center button-style">Latest Charge Data</button> 
+    <button type="button" id="allSpeed" class="float_center button-style">All Speed Data</button> 
     <br>
     <br>
     <br>
     <br>
     <div class="info_box_color long_boxes"> Statistics </div>
-    <div id="speedHigh" class="float_center info_boxes info_box_color">
-        <b id="speedHighNum" style="font-size:15px"></b>mph 
+    <div id="speedHigh" class="float_center info_boxes info_box_color" style="font-size:20px">
+        <b id="speedHighNum" style="font-size:30px"></b>mph 
         <br> 
         Highest Speed
     </div>
-    <div id="chargeUp" class="float_center info_boxes info_box_color">
-        <b id="chargeUpNumber"></b> 
+    <div id="chargeUp" class="float_center info_boxes info_box_color" style="font-size:20px">
+        <b id="chargeUpNumber" style="font-size:30px"></b> watt hours 
         <br> 
         Charge Gained from Charging Pad 
     </div>
@@ -46,6 +57,12 @@
     <br>
     <br>
     <div class="info_box_color long_boxes"> About Car </div>
+    <p style="text-align:center"> 
+        This car charges wirelessly using induction coils. It's pretty cool!
+    </p>
+    <p style="text-align:center; color:#5a6872">
+        Comments Questions? Email us at: gearuptablet@gmail.com
+    </p>
 
     <script src="stuff.js" type="text/javascript"></script>
 
