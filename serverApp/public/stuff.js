@@ -230,6 +230,7 @@ setupSpeed = function (){
     contentType : "application/json; charset=utf-8",
     dataType : "json",
     complete: function (response) {
+      const resData = JSON.parse(response.responseText);
       console.log("allcharge");
       const ctx = document.getElementById('myChart').getContext('2d');
       speedChart = new Chart(ctx, {
