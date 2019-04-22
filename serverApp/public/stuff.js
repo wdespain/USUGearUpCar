@@ -1,8 +1,8 @@
 //import {Chart} from "chart.js";
 
 const carId = 1;
-const urlPath = "http://localhost:3000";
-//const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+//const urlPath = "http://localhost:3000";
+const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
 //let secretCharge = 100;
 //let secretChargeUpCountDown = 0;
