@@ -6,13 +6,12 @@ const sqlite3 = require("sqlite3").verbose();
 var highestSpeed = 0;
 var chargeGained = 0;
 var previousCharge = 0;
-var batteryCapacity = 672; //in watt hours
+var batteryCapacity = 3110400; //in watt seconds
 var latestCharge = 0;
 var latestChargePercent = 0;
 var latestSpeed = 0;
 var allSpeed = [];
-var latestTenCharge = [];
-latestTenCharge = [672, 672, 672, 672, 672, 672, 672, 672, 672, 672];
+var latestTenCharge = new Array(50).fill(3110400);
 var allCharge = [];
 
 var testingCounter = 100;
@@ -82,7 +81,7 @@ app.post("/update", (req, res) => {
     }
     database.run(`INSERT INTO speedData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   } 
-  else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt hours
+  else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt seconds
     previousCharge = latestCharge;
     latestCharge = data.val;
     if(previousCharge > latestCharge){

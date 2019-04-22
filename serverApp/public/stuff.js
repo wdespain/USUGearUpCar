@@ -13,6 +13,7 @@ const red = "rgba(255, 0, 0, 0.6)";
 let orangeTrip = false;
 let redTrip = false;
 let activeGraph = "latestCharge";
+const fullCharge = 3110400; //full charge in watt seconds
 
 getData = function(){
   $.ajax({
@@ -46,6 +47,7 @@ getChartData = function(chartType){
     complete: function (response) {
       //console.log(response.responseText);
       const resData = JSON.parse(response.responseText);
+      console.log(resData.chargeData)
       updateChargeChart(resData.chargeData, resData.percent);
     }
   })
@@ -128,7 +130,7 @@ setupAllCharge = function(){
       var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
       gradientFill.addColorStop(0, green);
       gradientFill.addColorStop(1, green);
-      //speedChart.destroy();
+      speedChart.destroy();
       speedChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -151,15 +153,15 @@ setupAllCharge = function(){
               stacked: true,
               ticks: {
                 min: 0, // minimum value
-                max: 672 // maximum value, which should be the maximum watt hours for the battery capacity
+                max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
               },
               scaleLabel: {
                 display: true,
-                labelString: 'Watt Hours'
+                labelString: 'Watt Seconds'
               }
             }],
             xAxes: [{
-              ticks: {
+              ticks: {  
                 display: false
               },
               scaleLabel: {
@@ -179,12 +181,16 @@ setupLatestCharge = function(){
   var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
   gradientFill.addColorStop(0, green);
   gradientFill.addColorStop(1, green);
+  if(speedChart != null){
+    speedChart.destroy();
+  }
+  //speedChart.destroy();
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0],
+      labels : new Array(50).fill(0),
       datasets : [{
-        data : [672, 672, 672, 672, 672, 672, 672, 672, 672, 672],
+        data : new Array(50).fill(fullCharge),
         label : "charge",
         fill : "start",
         backgroundColor: gradientFill
@@ -201,11 +207,11 @@ setupLatestCharge = function(){
           stacked: true,
           ticks: {
             min: 0, // minimum value
-            max: 672 // maximum value, which should be the maximum watt hours for the battery capacity
+            max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
           },
           scaleLabel: {
             display: true,
-            labelString: 'Watt Hours'
+            labelString: 'Watt Seconds'
           }
         }],
         xAxes: [{
@@ -214,7 +220,7 @@ setupLatestCharge = function(){
           },
           scaleLabel: {
             display: true,
-            labelString: 'Last Ten Charge Readings'
+            labelString: 'Last 50 Charge Readings'
           }
         }]
       }
@@ -233,6 +239,7 @@ setupSpeed = function (){
       const resData = JSON.parse(response.responseText);
       console.log("allcharge");
       const ctx = document.getElementById('myChart').getContext('2d');
+      speedChart.destroy();
       speedChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -254,7 +261,7 @@ setupSpeed = function (){
               stacked: true,
               ticks: {
                 min: 0, // minimum value
-                max: 672 // maximum value, which should be the maximum watt hours for the battery capacity
+                max: 30 // maximum value
               },
               scaleLabel: {
                 display: true,
