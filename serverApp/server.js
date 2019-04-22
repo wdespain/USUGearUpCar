@@ -114,7 +114,7 @@ app.post("/getCarData", (req, res) =>{
 app.post("/getData", (req, res) => {
   //this will always send a carId
   //console.log("A request for data.")
-  /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!*/
+  /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!
   if(testingCounter < 0){
     latestCharge += 1;
     chargeGained += 1;

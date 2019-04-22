@@ -47,7 +47,7 @@ getChartData = function(chartType){
     complete: function (response) {
       //console.log(response.responseText);
       const resData = JSON.parse(response.responseText);
-      console.log(resData.chargeData)
+      //console.log(resData.chargeData)
       updateChargeChart(resData.chargeData, resData.percent);
     }
   })
