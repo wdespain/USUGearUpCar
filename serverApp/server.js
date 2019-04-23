@@ -175,7 +175,7 @@ app.post("/getDataForChart", (req, res) => {
       database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc`, (err, rows) => {
         if(rows.length != 0) {
           allCharge = rows.map(r => r.value);
-          latestCharge = rows[rows.length-1];
+          latestCharge = rows[rows.length-1].value;
           latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
         }
       });
@@ -186,7 +186,7 @@ app.post("/getDataForChart", (req, res) => {
       database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt asc`, (err, rows) => {
         if(rows.length != 0) {
           allSpeed = rows.map(r => r.value);
-          latestCharge = rows[rows.length-1];
+          latestCharge = rows[rows.length-1].value;
           latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
         }
       });
