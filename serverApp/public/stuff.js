@@ -385,7 +385,7 @@ $("#latestSpeed").on("click", () => {
 
 setInterval(function() {
   getData();
-  if(activeGraph == "latestCharge" || activeGraph = "latestSpeed"){
+  if(activeGraph == "latestCharge" || activeGraph == "latestSpeed"){
     getChartData();
   }
 }, 1000);
