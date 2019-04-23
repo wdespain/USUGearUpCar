@@ -52,6 +52,7 @@ getChartData = function(chartType){
       if(activeGraph == "latestCharge"){
         updateChargeChart(resData.chargeData, resData.percent);
       } else if(activeGraph == "latestSpeed"){
+        console.log(resData.chargeData)
         updateSpeedChart(resData.chargeData);
       }
     }
@@ -73,9 +74,9 @@ updateChargeChart = function(data, percent){
   secretChargeArray = secretChargeArray.slice(1)
   secretChargeArray.push(secretCharge)
   data = secretChargeArray*/
-  while(data.length < 10){
-    data.push(data[data.length-1]);
-  }
+  //while(data.length < 10){
+  //  data.push(data[data.length-1]);
+  //}
   if(percent <= 50 && orangeTrip == false){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
@@ -107,10 +108,8 @@ updateChargeChart = function(data, percent){
 }
 
 updateSpeedChart = function(data){
+  console.log(data);
   var ctx = document.getElementById('myChart').getContext('2d');
-  while(data.length < 10){
-    data.push(data[data.length-1]);
-  }
   speedChart.data.datasets[0].data = data;
   speedChart.update();
 }
