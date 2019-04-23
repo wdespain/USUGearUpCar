@@ -2,6 +2,7 @@
 
 const carId = 1;
 const latestChargeArraySize = 1200;
+const latestSpeedArraySize = 600;
 //const urlPath = "http://localhost:3000";
 const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
@@ -251,9 +252,9 @@ setupLatestSpeed = function(){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(latestChargeArraySize).fill(0),
+      labels : new Array(latestSpeedArraySize).fill(0),
       datasets : [{
-        data : new Array(latestChargeArraySize).fill(0),
+        data : new Array(latestSpeedArraySize).fill(0),
         label : "speed",
         fill : "start"
       }]

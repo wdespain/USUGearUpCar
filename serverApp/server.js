@@ -14,6 +14,7 @@ var latestSpeedArray = [];
 var allSpeed = [];
 var latestChargeArray = [];
 const latestChargeArraySize = 1200; //currently: last ten minutes 
+const latestSpeedArraySize = 600; //last five min
 var allCharge = [];
 
 var testingCounter = 100;
@@ -82,7 +83,7 @@ app.post("/update", (req, res) => {
     if(latestSpeed > highestSpeed){
       highestSpeed = latestSpeed;
     }
-    if(latestSpeedArray.length > latestChargeArraySize){
+    if(latestSpeedArray.length > latestSpeedArraySize){
       latestSpeedArray = latestSpeedArray.slice(1);
     }
     latestSpeedArray.push(latestSpeed);
@@ -214,7 +215,7 @@ app.post("/getDataForChart", (req, res) => {
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
   } else if(chartType == "latestSpeed"){
     if(latestSpeedArray.length == 0){
-      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt asc limit ${latestSpeedArraySize}`, (err, rows) => {
         if(rows.length != 0) {
           latestSpeedArray = rows.map(r => r.value);
         }
