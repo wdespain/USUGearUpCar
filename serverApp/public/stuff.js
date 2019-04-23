@@ -48,6 +48,7 @@ getChartData = function(chartType){
     complete: function (response) {
       //console.log(response.responseText);
       const resData = JSON.parse(response.responseText);
+      console.log(activeGraph);
       //console.log(resData.chargeData)
       if(activeGraph == "latestCharge"){
         updateChargeChart(resData.chargeData, resData.percent);
