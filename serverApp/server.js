@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 
 //internal vars
-var highestSpeed = 0;
-var chargeGained = 0;
+var highestSpeed = null;
+var chargeGained = null;
 var previousCharge = 0;
 var batteryCapacity = 3110400; //in watt seconds
 var latestCharge = 0;
@@ -88,6 +88,7 @@ app.post("/update", (req, res) => {
     latestCharge = data.val;
     if(previousCharge < latestCharge){
       chargeGained += latestCharge - previousCharge;
+      database.run(`INSERT INTO chargeData VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
     }
     //This takes off the oldest charge and adds the latest one
     if(latestChargeArray.length > 0){
@@ -140,6 +141,20 @@ app.post("/getData", (req, res) => {
     latestChargeArray = latestChargeArray.map(m => batteryCapacity);
   }
   /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!*/
+  if(highestSpeed == null){
+    database.all(`SELECT MAX(value) FROM speedData WHERE carId = ${carId}`, (err, rows) => {
+      if(rows.length != 0) {
+        highestSpeed = rows[0].value;
+      }
+    });
+  }
+  if(chargeGained == null){
+    database.all(`SELECT * FROM chargeGained WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
+      if(rows.length != 0) {
+        chargeGained = rows[0].value;
+      }
+    });
+  }
   res.send(`{ 
     "speed" : ${latestSpeed}, 
     "charge" : ${latestChargePercent},
