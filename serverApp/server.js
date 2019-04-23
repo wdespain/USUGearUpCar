@@ -11,7 +11,7 @@ var latestCharge = 0;
 var latestChargePercent = 0;
 var latestSpeed = 0;
 var allSpeed = [];
-var latestTenCharge = new Array(50).fill(3110400);
+var latestTenCharge = new Array(50).fill(0);
 var allCharge = [];
 
 var testingCounter = 100;
