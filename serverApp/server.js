@@ -90,14 +90,7 @@ app.post("/update", (req, res) => {
       chargeGained += latestCharge - previousCharge;
     }
     //This takes off the oldest charge and adds the latest one
-    if(latestChargeArray.length == 0){
-      database.all(`SELECT value FROM speedData WHERE carId = ${data.carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
-        if(rows.length != 0) {
-          latestChargeArray = rows;
-        }
-      });
-    }
-    if(latestChargeArray.length != 0){
+    if(latestChargeArray.length > 0){
       latestChargeArray = latestChargeArray.slice(1);
     }
     latestChargeArray.push(latestCharge);
@@ -178,12 +171,26 @@ app.post("/getDataForChart", (req, res) => {
   const carId = req.body.carId;
   const chartType = req.body.chartType;
   if(chartType == "allCharge"){
+    if(allCharge.length == 0){
+      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
+        if(rows.length != 0) {
+          allCharge = rows;
+        }
+      });
+    }
     res.send(` { "labels" : ${JSON.stringify(allCharge)}, "chargeData" : ${JSON.stringify(allCharge)} } `);
   } else if(chartType == "allSpeed"){
+    if(allSpeed.length == 0){
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
+        if(rows.length != 0) {
+          allSpeed = rows;
+        }
+      });
+    }
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
   } else if(chartType == "latestCharge"){
     if(latestChargeArray.length == 0){
-      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
+      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
         if(rows.length != 0) {
           latestChargeArray = rows;
         }
