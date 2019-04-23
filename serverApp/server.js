@@ -146,7 +146,9 @@ app.post("/getData", (req, res) => {
     database.all(`SELECT MAX(value) FROM speedData WHERE carId = ${carId}`, (err, rows) => {
       if(rows.length != 0) {
         console.log(rows)
-        highestSpeed = rows[0];
+        console.log(rows[0])
+        console.log(rows[0]["MAX(value)"])
+        highestSpeed = rows[0]["MAX(value)"];
       }
     });
   }
