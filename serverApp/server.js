@@ -10,9 +10,10 @@ var batteryCapacity = 3110400; //in watt seconds
 var latestCharge = 0;
 var latestChargePercent = 0;
 var latestSpeed = 0;
+var latestSpeedArray = [];
 var allSpeed = [];
 var latestChargeArray = [];
-const latestChargeArraySize = 50;
+const latestChargeArraySize = 1200; //currently: last ten minutes 
 var allCharge = [];
 
 var testingCounter = 100;
@@ -81,6 +82,10 @@ app.post("/update", (req, res) => {
     if(latestSpeed > highestSpeed){
       highestSpeed = latestSpeed;
     }
+    if(latestSpeedArray.length > 0){
+      latestSpeedArray = latestSpeedArray.slice(1);
+    }
+    latestSpeedArray.push(latestSpeed);
     database.run(`INSERT INTO speedData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   } 
   else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt seconds
@@ -207,6 +212,15 @@ app.post("/getDataForChart", (req, res) => {
       });
     }
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
+  } else if(chartType == "latestSpeed"){
+    if(latestSpeedArray.length == 0){
+      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {
+        if(rows.length != 0) {
+          latestSpeedArray = rows.map(r => r.value);
+        }
+      });
+    }
+    res.send(` { "chargeData" : ${JSON.stringify(latestSpeedArray)}, "percent" : ${latestChargePercent} } `);
   } else if(chartType == "latestCharge"){
     if(latestChargeArray.length == 0){
       database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {

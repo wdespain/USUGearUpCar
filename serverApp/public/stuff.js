@@ -1,6 +1,7 @@
 //import {Chart} from "chart.js";
 
 const carId = 1;
+const latestChargeArraySize = 1200;
 //const urlPath = "http://localhost:3000";
 const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
@@ -48,7 +49,11 @@ getChartData = function(chartType){
       //console.log(response.responseText);
       const resData = JSON.parse(response.responseText);
       //console.log(resData.chargeData)
-      updateChargeChart(resData.chargeData, resData.percent);
+      if(activeGraph == "latestCharge"){
+        updateChargeChart(resData.chargeData, resData.percent);
+      } else if(activeGraph == "latestSpeed"){
+        updateSpeedChart(resData.chargeData);
+      }
     }
   })
 }
@@ -98,6 +103,15 @@ updateChargeChart = function(data, percent){
   } else {
     speedChart.data.datasets[0].data = data;
   }
+  speedChart.update();
+}
+
+updateSpeedChart = function(data){
+  var ctx = document.getElementById('myChart').getContext('2d');
+  while(data.length < 10){
+    data.push(data[data.length-1]);
+  }
+  speedChart.data.datasets[0].data = data;
   speedChart.update();
 }
 
@@ -188,9 +202,9 @@ setupLatestCharge = function(){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(50).fill(0),
+      labels : new Array(latestChargeArraySize).fill(0),
       datasets : [{
-        data : new Array(50).fill(fullCharge),
+        data : new Array(latestChargeArraySize).fill(fullCharge),
         label : "charge",
         fill : "start",
         backgroundColor: gradientFill
@@ -220,7 +234,55 @@ setupLatestCharge = function(){
           },
           scaleLabel: {
             display: true,
-            labelString: 'Last 50 Charge Readings'
+            labelString: 'Last 10 Minutes Charge Readings'
+          }
+        }]
+      }
+    }
+  });
+}
+
+setupLatestSpeed = function(){
+  const ctx = document.getElementById('myChart').getContext('2d');
+  if(speedChart != null){
+    speedChart.destroy();
+  }
+  speedChart.destroy();
+  speedChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels : new Array(latestChargeArraySize).fill(0),
+      datasets : [{
+        data : new Array(latestChargeArraySize).fill(fullCharge),
+        label : "speed",
+        fill : "start"
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      maintainAspectRatio: false,
+      scales: {
+        yAxes: [{
+          display: true,
+          stacked: true,
+          ticks: {
+            min: 0, // minimum value
+            max: 30 // maximum value, which should be the maximum watt seconds for the battery capacity
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'MPH'
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Last 10 Minutes Speed Readings'
           }
         }]
       }
@@ -246,7 +308,7 @@ setupSpeed = function (){
           labels : resData.labels,
           datasets : [{
             data : resData.chargeData,
-            label : "charge",
+            label : "speed",
             fill : "start"
           }]
         },
@@ -292,6 +354,7 @@ $("#allCharge").on("click", () => {
   setupAllCharge();
   $("#latestCharge").attr("disabled", false);
   $("#allSpeed").attr("disabled", false);
+  $("#latestSpeed").attr("disabled", false);
 });
 
 $("#latestCharge").on("click", () => {
@@ -300,6 +363,7 @@ $("#latestCharge").on("click", () => {
   activeGraph = "latestCharge";
   setupLatestCharge();
   $("#allSpeed").attr("disabled", false);
+  $("#latestSpeed").attr("disabled", false);
 });
 
 $("#allSpeed").on("click", () => {
@@ -308,6 +372,15 @@ $("#allSpeed").on("click", () => {
   $("#allSpeed").attr("disabled", true);
   activeGraph = "allSpeed";
   setupSpeed();
+  $("#latestSpeed").attr("disabled", false);
+});
+$("#latestSpeed").on("click", () => {
+  $("#allCharge").attr("disabled", false);
+  $("#latestCharge").attr("disabled", false);
+  $("#allSpeed").attr("disabled", false);
+  $("#latestSpeed").attr("disabled", true);
+  activeGraph = "latestSpeed";
+  setupLatestSpeed();
 });
 
 setInterval(function() {
