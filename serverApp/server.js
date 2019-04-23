@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 
 //internal vars
-var highestSpeed = null;
-var chargeGained = null;
+var highestSpeed = -1;
+var chargeGained = -1;
 var previousCharge = 0;
 var batteryCapacity = 3110400; //in watt seconds
 var latestCharge = 0;
@@ -142,14 +142,14 @@ app.post("/getData", (req, res) => {
     latestChargeArray = latestChargeArray.map(m => batteryCapacity);
   }
   /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!*/
-  if(highestSpeed == null){
+  if(highestSpeed == -1){
     database.all(`SELECT MAX(value) FROM speedData WHERE carId = ${carId}`, (err, rows) => {
       if(rows.length != 0) {
         highestSpeed = rows[0].value;
       }
     });
   }
-  if(chargeGained == null){
+  if(chargeGained == -1){
     database.all(`SELECT * FROM chargeGained WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
       if(rows.length != 0) {
         chargeGained = rows[0].value;
