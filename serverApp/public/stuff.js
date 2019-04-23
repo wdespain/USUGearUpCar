@@ -48,12 +48,12 @@ getChartData = function(chartType){
     complete: function (response) {
       //console.log(response.responseText);
       const resData = JSON.parse(response.responseText);
-      console.log(activeGraph);
+      //console.log(activeGraph);
       //console.log(resData.chargeData)
       if(activeGraph == "latestCharge"){
         updateChargeChart(resData.chargeData, resData.percent);
       } else if(activeGraph == "latestSpeed"){
-        console.log(resData.chargeData)
+        //console.log(resData.chargeData)
         updateSpeedChart(resData.chargeData);
       }
     }
@@ -109,7 +109,7 @@ updateChargeChart = function(data, percent){
 }
 
 updateSpeedChart = function(data){
-  console.log(data);
+  //console.log(data);
   var ctx = document.getElementById('myChart').getContext('2d');
   speedChart.data.datasets[0].data = data;
   speedChart.update();
@@ -385,7 +385,7 @@ $("#latestSpeed").on("click", () => {
 
 setInterval(function() {
   getData();
-  if(activeGraph == "latestCharge"){
+  if(activeGraph == "latestCharge" || activeGraph = "latestSpeed"){
     getChartData();
   }
 }, 1000);
