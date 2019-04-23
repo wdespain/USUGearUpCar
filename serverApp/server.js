@@ -117,6 +117,7 @@ app.post("/getCarData", (req, res) =>{
 });
 
 app.post("/getData", (req, res) => {
+  const carId = req.body.carId;
   //this will always send a carId
   //console.log("A request for data.")
   /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!
@@ -162,7 +163,6 @@ app.post("/getData", (req, res) => {
     "chargeGained" : ${chargeGained} }`
   );
   /*
-  const carId = req.body.carId;
   res.write("{ ")    
   //TODO: query database for the data
   database.all(`SELECT * FROM speedData WHERE carId = ${carId} order by timeEnt desc limit 1`, (err, rows) => {
