@@ -91,7 +91,7 @@ app.post("/update", (req, res) => {
     }
     //This takes off the oldest charge and adds the latest one
     if(latestChargeArray.length == 0){
-      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
+      database.all(`SELECT value FROM speedData WHERE carId = ${data.carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
         if(rows.length != 0) {
           latestChargeArray = rows;
         }
