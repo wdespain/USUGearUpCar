@@ -175,7 +175,6 @@ app.post("/getDataForChart", (req, res) => {
       database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
         if(rows.length != 0) {
           allCharge = rows.map(r => r.value);
-          console.log(allCharge);
         }
       });
     }
@@ -184,7 +183,7 @@ app.post("/getDataForChart", (req, res) => {
     if(allSpeed.length == 0){
       database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
         if(rows.length != 0) {
-          allSpeed = rows;
+          allSpeed = rows.map(r => r.value);
         }
       });
     }
@@ -193,7 +192,7 @@ app.post("/getDataForChart", (req, res) => {
     if(latestChargeArray.length == 0){
       database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
         if(rows.length != 0) {
-          latestChargeArray = rows;
+          latestChargeArray = rows.map(r => r.value);
         }
       });
     }
