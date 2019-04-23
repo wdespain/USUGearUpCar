@@ -175,6 +175,8 @@ app.post("/getDataForChart", (req, res) => {
       database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
         if(rows.length != 0) {
           allCharge = rows;
+          console.log(rows);
+          console.log(allCharge);
         }
       });
     }
