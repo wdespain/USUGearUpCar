@@ -312,7 +312,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             findNum[0] = "voltage";
         } else if(findNum[0].equals("charge")){
             latestCharge = Double.parseDouble(findNum[1]) * 100;
-            charge.add(String.valueOf(latestCharge));
+            findNum[1] = String.valueOf(latestCharge);
+            charge.add(findNum[1]);
         }
         Display(message);
         Map<String, String> postData = new HashMap<>();

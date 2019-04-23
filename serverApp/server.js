@@ -90,7 +90,7 @@ app.post("/update", (req, res) => {
     //This takes off the oldest charge and adds the latest one
     latestTenCharge = latestTenCharge.slice(1);
     latestTenCharge.push(latestCharge);
-    latestChargePercent = latestCharge / batteryCapacity;
+    latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
     allCharge.push(latestCharge);
     database.run(`INSERT INTO chargeData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
