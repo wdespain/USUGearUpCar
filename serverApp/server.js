@@ -11,7 +11,8 @@ var latestCharge = 0;
 var latestChargePercent = 0;
 var latestSpeed = 0;
 var allSpeed = [];
-var latestTenCharge = new Array(50).fill(0);
+var latestChargeArray = [];
+const latestChargeArraySize = 50;
 var allCharge = [];
 
 var testingCounter = 100;
@@ -89,8 +90,17 @@ app.post("/update", (req, res) => {
       chargeGained += latestCharge - previousCharge;
     }
     //This takes off the oldest charge and adds the latest one
-    latestTenCharge = latestTenCharge.slice(1);
-    latestTenCharge.push(latestCharge);
+    if(latestChargeArray.length == 0){
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
+        if(rows.length != 0) {
+          latestChargeArray = rows;
+        }
+      });
+    }
+    if(latestChargeArray.length != 0){
+      latestChargeArray = latestChargeArray.slice(1);
+    }
+    latestChargeArray.push(latestCharge);
     latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
     allCharge.push(latestCharge);
     database.run(`INSERT INTO chargeData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
@@ -126,15 +136,15 @@ app.post("/getData", (req, res) => {
     testingCounter = 100;
   }
   testingCounter -= 1;
-  latestTenCharge = latestTenCharge.slice(1);
-  latestTenCharge.push(latestCharge);
+  latestChargeArray = latestChargeArray.slice(1);
+  latestChargeArray.push(latestCharge);
   latestChargePercent = Math.floor((latestCharge / batteryCapacity)*100);
   allCharge.push(latestCharge);
   //console.log(`current charge: ${latestCharge}   / ${batteryCapacity}`)
   if(latestCharge <= 0){
     //console.log("update latest charge")
     latestCharge = batteryCapacity;
-    latestTenCharge = latestTenCharge.map(m => batteryCapacity);
+    latestChargeArray = latestChargeArray.map(m => batteryCapacity);
   }
   /****************!!!!!!!!!!!!!!!!!ONLY for testing remove!!!!*/
   res.send(`{ 
@@ -172,7 +182,14 @@ app.post("/getDataForChart", (req, res) => {
   } else if(chartType == "allSpeed"){
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
   } else if(chartType == "latestCharge"){
-    res.send(` { "chargeData" : ${JSON.stringify(latestTenCharge)}, "percent" : ${latestChargePercent} } `);
+    if(latestChargeArray.length == 0){
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
+        if(rows.length != 0) {
+          latestChargeArray = rows;
+        }
+      });
+    }
+    res.send(` { "chargeData" : ${JSON.stringify(latestChargeArray)}, "percent" : ${latestChargePercent} } `);
   }
   /*res.write("[")    
   database.all(`SELECT * FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit 10`, (err, rows) => {
