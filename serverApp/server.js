@@ -214,7 +214,7 @@ app.post("/getDataForChart", (req, res) => {
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
   } else if(chartType == "latestSpeed"){
     if(latestSpeedArray.length == 0){
-      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {
         if(rows.length != 0) {
           latestSpeedArray = rows.map(r => r.value);
         }
