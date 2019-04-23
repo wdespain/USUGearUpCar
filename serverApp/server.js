@@ -172,25 +172,29 @@ app.post("/getDataForChart", (req, res) => {
   const chartType = req.body.chartType;
   if(chartType == "allCharge"){
     if(allCharge.length == 0){
-      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
+      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc`, (err, rows) => {
         if(rows.length != 0) {
           allCharge = rows.map(r => r.value);
+          latestCharge = rows[rows.length-1];
+          latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
         }
       });
     }
     res.send(` { "labels" : ${JSON.stringify(allCharge)}, "chargeData" : ${JSON.stringify(allCharge)} } `);
   } else if(chartType == "allSpeed"){
     if(allSpeed.length == 0){
-      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt desc`, (err, rows) => {
+      database.all(`SELECT value FROM speedData WHERE carId = ${carId} order by timeEnt asc`, (err, rows) => {
         if(rows.length != 0) {
           allSpeed = rows.map(r => r.value);
+          latestCharge = rows[rows.length-1];
+          latestChargePercent = Math.trunc((latestCharge / batteryCapacity) * 100);
         }
       });
     }
     res.send(` { "labels" : ${JSON.stringify(allSpeed)}, "chargeData" : ${JSON.stringify(allSpeed)} } `);
   } else if(chartType == "latestCharge"){
     if(latestChargeArray.length == 0){
-      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt desc limit ${latestChargeArraySize}`, (err, rows) => {
+      database.all(`SELECT value FROM chargeData WHERE carId = ${carId} order by timeEnt asc limit ${latestChargeArraySize}`, (err, rows) => {
         if(rows.length != 0) {
           latestChargeArray = rows.map(r => r.value);
         }
