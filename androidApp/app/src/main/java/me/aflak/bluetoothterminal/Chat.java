@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 //import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -56,9 +57,10 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     Integer batteryCapacity;
     String url;
     String carId;
-    Double latestCurrent;
-    Double latestVoltage;
-    Double latestCharge;
+    Pair<Double, String> latestSpeed;
+    Pair<Double, String> latestCurrent;
+    Pair<Double, String> latestVoltage;
+    Pair<Double, String> latestCharge;
     Integer unsentDataId;
     //private String name;
     private Bluetooth b;
@@ -72,6 +74,8 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
     private ScrollView scrollView;
     private boolean registered=false;
 
+    Handler postHandler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         speed.add("0");
@@ -80,14 +84,23 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         voltage.add("0");
         carId = "1";
         unsentDataId = 0;
-        latestVoltage = 0.1;
-        latestCurrent = 0.1;
-        latestCharge = 0.0;
+        latestVoltage = null;
+        latestCurrent = null;
+        latestCharge = null;
+        latestSpeed = null;
         batteryCapacity = 3110400;
         //Bundle bundle = getIntent().getExtras();
         //url = "http://"+bundle.getString("ipAddress")+":3000";
         url = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
         //url = "http://localhost:3000";
+
+        postHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                postData();
+                postHandler.postDelayed(this, 500);
+            }
+        }, 500);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -137,6 +150,66 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             unregisterReceiver(mReceiver);
             registered=false;
         }
+    }
+
+    public void postData(){
+        Display("this is a message");
+        if(latestSpeed != null){
+            postSpeed();
+            latestSpeed = null;
+        }
+        if(latestCharge != null){
+            postCharge();
+            latestCharge = null;
+        }
+        if(latestVoltage != null){
+            postVoltage();
+            latestVoltage = null;
+        }
+        if(latestCurrent != null){
+            postCurrent();
+            latestCurrent = null;
+        }
+    }
+
+    private void postSpeed(){
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", "spe");
+        postData.put("val", String.valueOf(latestSpeed.first));
+        postData.put("timeStamp", latestSpeed.second);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
+    }
+
+    private void postCharge(){
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", "cha");
+        postData.put("val", String.valueOf(latestCharge.first));
+        postData.put("timeStamp", latestCharge.second);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
+    }
+
+    private void postCurrent(){
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", "cur");
+        postData.put("val", String.valueOf(latestCurrent.first));
+        postData.put("timeStamp", latestCurrent.second);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
+    }
+
+    private void postVoltage(){
+        Map<String, String> postData = new HashMap<>();
+        postData.put("carId", carId);
+        postData.put("indicator", "vol");
+        postData.put("val", String.valueOf(latestVoltage.first));
+        postData.put("timeStamp", latestVoltage.second);
+        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
+        task.execute( url + "/update");
     }
 
     private class HttpPostAsyncTask extends AsyncTask<String, Void, String> {
@@ -267,10 +340,12 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             public void run() {
                 //text.setText("just got" + s + "\n");
                 String speedVal =  String.valueOf((int) Double.parseDouble(speed.get(speed.size() - 1)));
-                String chargeVal =  String.valueOf( (int) ((latestCharge/batteryCapacity)*100));
+                if(latestCharge != null){
+                    String chargeVal =  String.valueOf( (int) ((latestCharge.first/batteryCapacity)*100));
+                    chargeText.setText(chargeVal);
+                }
                 speedText.setText(speedVal);
                 currentText.setText(current.get(current.size() - 1));
-                chargeText.setText(chargeVal);
                 voltageText.setText(voltage.get(voltage.size() - 1));
             }
         });
@@ -296,33 +371,27 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
 
     @Override
     public void onMessage(String message) {
-        String timeStamp = String.valueOf(System.currentTimeMillis()/1000);
+        String timestamp = String.valueOf(System.currentTimeMillis()/1000);
         String[] findNum = message.split(": ");
         if(findNum.length == 1){
             findNum = message.split("= ");
         }
         if(findNum[0].equals("MPH")){
+            latestSpeed = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
             speed.add(findNum[1]);
             findNum[0] = "speed";
         } else if(findNum[0].equals("current")){
-            latestCurrent = Double.parseDouble(findNum[1]) * 100;
+            latestCurrent = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
             current.add(findNum[1]);
         } else if(findNum[0].equals("INPUT V")){
+            latestVoltage = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
             voltage.add(findNum[1]);
             findNum[0] = "voltage";
         } else if(findNum[0].equals("charge")){
-            latestCharge = Double.parseDouble(findNum[1]) * 100;
+            latestCharge = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
             findNum[1] = String.valueOf(latestCharge);
             charge.add(findNum[1]);
         }
-        Display(message);
-        Map<String, String> postData = new HashMap<>();
-        postData.put("carId", carId);
-        postData.put("indicator", findNum[0].substring(0, 3));
-        postData.put("val", findNum[1]);
-        postData.put("timeStamp", timeStamp);
-        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
-        task.execute( url + "/update");
     }
 
     @Override

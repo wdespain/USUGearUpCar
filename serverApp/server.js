@@ -75,7 +75,8 @@ app.post("/update", (req, res) => {
   //insert values (carId, val, timestamp)
   // indicators will be: spe, cha, cur, vol\
   if (data.indicator == "spe"){ // speed is assumed to come in as miles per hour
-    latestSpeed = data.val;
+    latestSpeed = Math.trunc(data.val);
+    allSpeed.push(latestSpeed);
     if(latestSpeed > highestSpeed){
       highestSpeed = latestSpeed;
     }
@@ -84,7 +85,7 @@ app.post("/update", (req, res) => {
   else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt seconds
     previousCharge = latestCharge;
     latestCharge = data.val;
-    if(previousCharge > latestCharge){
+    if(previousCharge < latestCharge){
       chargeGained += latestCharge - previousCharge;
     }
     //This takes off the oldest charge and adds the latest one
