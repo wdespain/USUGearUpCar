@@ -156,6 +156,11 @@ app.post("/getData", (req, res) => {
       }
     });
   }
+  console.log(`{ 
+    "speed" : ${latestSpeed}, 
+    "charge" : ${latestChargePercent},
+    "highestSpeed" : ${highestSpeed},
+    "chargeGained" : ${chargeGained} }`)
   res.send(`{ 
     "speed" : ${latestSpeed}, 
     "charge" : ${latestChargePercent},
