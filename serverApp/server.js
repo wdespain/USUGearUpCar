@@ -82,7 +82,7 @@ app.post("/update", (req, res) => {
     if(latestSpeed > highestSpeed){
       highestSpeed = latestSpeed;
     }
-    if(latestSpeedArray.length > 0){
+    if(latestSpeedArray.length > latestChargeArraySize){
       latestSpeedArray = latestSpeedArray.slice(1);
     }
     latestSpeedArray.push(latestSpeed);
@@ -96,7 +96,7 @@ app.post("/update", (req, res) => {
       database.run(`INSERT INTO chargeData VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
     }
     //This takes off the oldest charge and adds the latest one
-    if(latestChargeArray.length > 0){
+    if(latestChargeArray.length > latestChargeArraySize){
       latestChargeArray = latestChargeArray.slice(1);
     }
     latestChargeArray.push(latestCharge);

@@ -52,6 +52,8 @@ getChartData = function(chartType){
       if(activeGraph == "latestCharge"){
         updateChargeChart(resData.chargeData, resData.percent);
       } else if(activeGraph == "latestSpeed"){
+        console.log("updating latest speed")
+        console.log(resData.chargeData)
         updateSpeedChart(resData.chargeData);
       }
     }
@@ -253,7 +255,7 @@ setupLatestSpeed = function(){
     data: {
       labels : new Array(latestChargeArraySize).fill(0),
       datasets : [{
-        data : new Array(latestChargeArraySize).fill(fullCharge),
+        data : new Array(latestChargeArraySize).fill(0),
         label : "speed",
         fill : "start"
       }]
