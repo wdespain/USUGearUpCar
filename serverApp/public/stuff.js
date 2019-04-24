@@ -3,8 +3,8 @@
 const carId = 1;
 const latestChargeArraySize = 1200;
 const latestSpeedArraySize = 600;
-//const urlPath = "http://localhost:3000";
-const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+const urlPath = "http://localhost:3000";
+//const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
 //let secretCharge = 100;
 //let secretChargeUpCountDown = 0;
@@ -142,7 +142,9 @@ updateChargeChart = function(data, percent){
 updateSpeedChart = function(data){
   //console.log(data);
   var ctx = document.getElementById('myChart').getContext('2d');
-  speedChart.data.datasets[0].data = data;
+  speedChart.data.datasets[0].data = data.map((value, i) => {
+    return { "x" : 0 - i, "y" : value }
+  });
   speedChart.update();
 }
 
@@ -289,20 +291,19 @@ setupLatestCharge = function(){
 
 setupLatestSpeed = function(){
   const ctx = document.getElementById('myChart').getContext('2d');
-  const xArray = new Array(latestSpeedArraySize).fill(0).forEach(fuction(value, i){
-    value = value - i;
-  });
   console.log(xArray);
   if(speedChart != null){
     speedChart.destroy();
   }
   speedChart.destroy();
   speedChart = new Chart(ctx, {
-    type: 'line',
+    type: 'scatter',
     data: {
-      labels : xArray,
+      label : "speed",
       datasets : [{
-        data : new Array(latestSpeedArraySize).fill(0),
+        data : new Array(latestSpeedArraySize).fill(0).map((value, i) => {
+          return { "x" : 0 - i, "y" : value }
+        }),
         label : "speed",
         fill : "start"
       }]
@@ -354,9 +355,11 @@ setupSpeed = function (){
       speedChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels : resData.labels,
+          labels : "speed",
           datasets : [{
-            data : resData.chargeData,
+            data : resData.chargeData.map((value, i) => {
+              return { "x" : 0 - i, "y" : value }
+            }),
             label : "speed",
             fill : "start"
           }]
