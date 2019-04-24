@@ -16,6 +16,7 @@ var latestChargeArray = [];
 const latestChargeArraySize = 1200; //currently: last ten minutes 
 const latestSpeedArraySize = 600; //last five min
 var allCharge = [];
+var latestCurrent = 0;
 
 var testingCounter = 100;
 
@@ -96,7 +97,7 @@ app.post("/update", (req, res) => {
     } else {
       latestCharge = data.val;
     }
-    if(current < 0){
+    if(latestCurrent < 0){
       chargeGained += latestCharge - previousCharge;
       database.run(`INSERT INTO chargeData VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
     }
@@ -110,6 +111,7 @@ app.post("/update", (req, res) => {
     database.run(`INSERT INTO chargeData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
   else if(data.indicator == "cur"){
+    latestCurrent = data.val;
     database.run(`INSERT INTO currentData VALUES (${data.carId},${data.val},${data.timeStamp}) `); 
   }
   else if (data.indicator == "vol"){
