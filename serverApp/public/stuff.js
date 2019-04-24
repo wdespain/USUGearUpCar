@@ -108,10 +108,10 @@ updateChargeChart = function(data, percent){
     $("#charge").css("background-color", green);
   } else if(percent < 50 && percent >= 30 ){
     $("#charge").css("background-color", orange);
-  } else if( percent < 30) {
+  } else if( percent < 20) {
     $("#charge").css("background-color", red);
   }
-  if(data[data.length-1] <= 50 && orangeTrip == false){
+  if(orangeTrip == false && Math.trunc((data[data.length-1] / batteryCapacity) * 100) < 50){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, green);
@@ -122,7 +122,7 @@ updateChargeChart = function(data, percent){
       fill : "start",
       backgroundColor: gradientFill
     };
-  } else if(data[data.length-1] <= 20 && redTrip == false){
+  } else if(redTrip == false && Math.trunc((data[data.length-1] / batteryCapacity) * 100) < 20){
     redTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, orange);
@@ -174,7 +174,14 @@ setupAllCharge = function(){
       const ctx = document.getElementById('myChart').getContext('2d');
       var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
       gradientFill.addColorStop(0, green);
-      gradientFill.addColorStop(1, green);
+      const lastChargeDataPercent = Math.trunc((resData.chargeData[resData.chargeData.length - 1] / batteryCapacity) * 100);
+      if( lastChargeDataPercent > 50){
+        gradientFill.addColorStop(1, green);
+      } else if( lastChargeDataPercent > 30 && lastChargeDataPercent < 50){
+        gradientFill.addColorStop(1, orange);
+      } else {
+        gradientFill.addColorStop(1, red);
+      }
       speedChart.destroy();
       speedChart = new Chart(ctx, {
         type: 'line',
@@ -198,7 +205,10 @@ setupAllCharge = function(){
               stacked: true,
               ticks: {
                 min: 0, // minimum value
-                max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
+                max: fullCharge, // maximum value, which should be the maximum watt seconds for the battery capacity
+                callback: function(label, index, labels) {
+                  return Math.trunc((label / 3110400) * 100)
+                }
               },
               scaleLabel: {
                 display: true,
@@ -286,7 +296,9 @@ setupLatestSpeed = function(){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(latestSpeedArraySize).fill(0),
+      labels : new Array(latestSpeedArraySize).fill(0).forEach(fuction(value, i){
+        value = value - i;
+      }),
       datasets : [{
         data : new Array(latestSpeedArraySize).fill(0),
         label : "speed",
