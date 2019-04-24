@@ -97,7 +97,7 @@ app.post("/update", (req, res) => {
     } else {
       latestCharge = data.val;
     }
-    if(latestCurrent < 0){
+    if(latestCurrent < 0 && latestSpeed > 10){
       chargeGained += latestCharge - previousCharge;
       database.run(`INSERT INTO chargeData VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
     }
