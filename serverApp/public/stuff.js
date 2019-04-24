@@ -15,7 +15,7 @@ const red = "rgba(255, 0, 0, 0.6)";
 let orangeTrip = false;
 let redTrip = false;
 let activeGraph = "latestCharge";
-const fullCharge = 3110400; //full charge in watt seconds
+const batteryCapacity = 3110400; //full charge in watt seconds
 let focusedCharge = false;
 
 getData = function(){
@@ -42,7 +42,7 @@ updateText = function(newData){
     $("#chargeUpPercent").text(0);
   } else {
     $("#chargeUpNumber").text(newData.chargeGained);
-    $("#chargeUpPercent").text(((newData.chargeGained/fullCharge) * 100).toFixed(2));
+    $("#chargeUpPercent").text(((newData.chargeGained/batteryCapacity) * 100).toFixed(2));
   }
 }
 
@@ -92,8 +92,8 @@ updateChargeChart = function(data, percent){
       minTick = 0;
     }
     let maxTick = data[0] + 200000;
-    if(maxTick > fullCharge){
-      maxTick = fullCharge;
+    if(maxTick > batteryCapacity){
+      maxTick = batteryCapacity;
     }
     speedChart.options.scales.yAxes[0].ticks = {
         min : minTick,
@@ -207,7 +207,7 @@ setupAllCharge = function(){
               stacked: true,
               ticks: {
                 min: 0, // minimum value
-                max: fullCharge, // maximum value, which should be the maximum watt seconds for the battery capacity
+                max: batteryCapacity, // maximum value, which should be the maximum watt seconds for the battery capacity
                 callback: function(label, index, labels) {
                   return Math.trunc((label / 3110400) * 100)
                 }
@@ -248,7 +248,7 @@ setupLatestCharge = function(){
     data: {
       labels : new Array(latestChargeArraySize).fill(0),
       datasets : [{
-        data : new Array(latestChargeArraySize).fill(fullCharge),
+        data : new Array(latestChargeArraySize).fill(batteryCapacity),
         label : "charge",
         fill : "start",
         backgroundColor: gradientFill
@@ -265,7 +265,7 @@ setupLatestCharge = function(){
           stacked: true,
           ticks: {
             min: 0, // minimum value
-            max: fullCharge, // maximum value, which should be the maximum watt seconds for the battery capacity
+            max: batteryCapacity, // maximum value, which should be the maximum watt seconds for the battery capacity
             callback: function(label, index, labels) {
               return Math.trunc((label / 3110400) * 100)
             }
