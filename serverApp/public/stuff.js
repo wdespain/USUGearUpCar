@@ -37,7 +37,13 @@ updateText = function(newData){
   $("#speedNum").text(newData.speed)
   $("#chargeNum").text(newData.charge);
   $("#speedHighNum").text(newData.highestSpeed);
-  $("#chargeUpNumber").text(newData.chargeGained);
+  if(newData.chargeGained < 0){
+    $("#chargeUpNumber").text(0);
+    $("#chargeUpPercent").text(0);
+  } else {
+    $("#chargeUpNumber").text(newData.chargeGained);
+    $("#chargeUpPercent").text(((new.chargeGained/fullCharge) * 100).toFixed(2));
+  }
 }
 
 getChartData = function(chartType){
@@ -246,7 +252,7 @@ setupLatestCharge = function(){
           },
           scaleLabel: {
             display: true,
-            labelString: 'Watt Seconds'
+            labelString: 'Percent Charge'
           }
         }],
         xAxes: [{
