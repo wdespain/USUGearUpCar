@@ -87,11 +87,11 @@ updateChargeChart = function(data, percent){
   //  data.push(data[data.length-1]);
   //}
   if(focusedCharge == false){
-    let minTick = data[0] - 200000;
+    let minTick = data[data.length - 1] - 200000;
     if(minTick < 0){
       minTick = 0;
     }
-    let maxTick = data[data.length - 1] + 200000;
+    let maxTick = data[0] + 200000;
     if(maxTick > fullCharge){
       maxTick = fullCharge;
     }
