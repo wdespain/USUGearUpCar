@@ -175,14 +175,14 @@ setupAllCharge = function(){
       const resData = JSON.parse(response.responseText);
       const ctx = document.getElementById('myChart').getContext('2d');
       var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
-      gradientFill.addColorStop(0, green);
+      gradientFill.addColorStop(1, green);
       const lastChargeDataPercent = Math.trunc((resData.chargeData[resData.chargeData.length - 1] / batteryCapacity) * 100);
       if( lastChargeDataPercent > 50){
-        gradientFill.addColorStop(1, green);
+        gradientFill.addColorStop(0, green);
       } else if( lastChargeDataPercent > 30 && lastChargeDataPercent < 50){
-        gradientFill.addColorStop(1, orange);
+        gradientFill.addColorStop(0, orange);
       } else {
-        gradientFill.addColorStop(1, red);
+        gradientFill.addColorStop(0, red);
       }
       speedChart.destroy();
       speedChart = new Chart(ctx, {
@@ -353,7 +353,7 @@ setupSpeed = function (){
       const ctx = document.getElementById('myChart').getContext('2d');
       speedChart.destroy();
       speedChart = new Chart(ctx, {
-        type: 'line',
+        type: 'scatter',
         data: {
           labels : "speed",
           datasets : [{
