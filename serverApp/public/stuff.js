@@ -87,9 +87,17 @@ updateChargeChart = function(data, percent){
   //  data.push(data[data.length-1]);
   //}
   if(focusedCharge == false){
+    let minTick = data[0] - 200000;
+    if(minTick < 0){
+      minTick = 0;
+    }
+    let maxTick = data[data.length - 1] + 200000;
+    if(maxTick > fullCharge){
+      maxTick = fullCharge;
+    }
     speedChart.options.scales.yAxes[0].ticks = {
-        min : data[0] - 200000,
-        max : data[data.length - 1] + 200000,
+        min : minTick,
+        max : maxTick,
         callback: function(label, index, labels) {
           return Math.trunc((label / 3110400) * 100)
         }
