@@ -91,8 +91,12 @@ app.post("/update", (req, res) => {
   } 
   else if(data.indicator == "cha"){ //Charge is assumed to come in as Watt seconds
     previousCharge = latestCharge;
-    latestCharge = data.val;
-    if(previousCharge < latestCharge){
+    if(data.val > batteryCapacity){
+      latestCharge = batteryCapacity;
+    } else {
+      latestCharge = data.val;
+    }
+    if(current < 0){
       chargeGained += latestCharge - previousCharge;
       database.run(`INSERT INTO chargeData VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
     }

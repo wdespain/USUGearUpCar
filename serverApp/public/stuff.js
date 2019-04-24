@@ -3,8 +3,8 @@
 const carId = 1;
 const latestChargeArraySize = 1200;
 const latestSpeedArraySize = 600;
-//const urlPath = "http://localhost:3000";
-const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+const urlPath = "http://localhost:3000";
+//const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
 //let secretCharge = 100;
 //let secretChargeUpCountDown = 0;
@@ -79,6 +79,13 @@ updateChargeChart = function(data, percent){
   //while(data.length < 10){
   //  data.push(data[data.length-1]);
   //}
+  if(percent >= 50) {
+    $("#charge").css("background-color", green);
+  } else if(percent < 50 && percent >= 30 ){
+    $("#charge").css("background-color", orange);
+  } else if( percent < 30) {
+    $("#charge").css("background-color", red);
+  }
   if(percent <= 50 && orangeTrip == false){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
@@ -90,7 +97,6 @@ updateChargeChart = function(data, percent){
       fill : "start",
       backgroundColor: gradientFill
     };
-    $("#charge").css("background-color", orange);
   } else if(percent <= 20 && redTrip == false){
     redTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
@@ -102,7 +108,6 @@ updateChargeChart = function(data, percent){
       fill : "start",
       backgroundColor: gradientFill
     };
-    $("#charge").css("background-color", red);
   } else {
     speedChart.data.datasets[0].data = data;
   }

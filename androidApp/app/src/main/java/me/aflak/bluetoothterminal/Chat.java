@@ -98,9 +98,9 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             @Override
             public void run() {
                 postData();
-                postHandler.postDelayed(this, 500);
+                postHandler.postDelayed(this, 250);
             }
-        }, 500);
+        }, 250);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -388,7 +388,11 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
             voltage.add(findNum[1]);
             findNum[0] = "voltage";
         } else if(findNum[0].equals("charge")){
-            latestCharge = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
+            if(Double.parseDouble(findNum[1]) > batteryCapacity){
+                latestCharge = new Pair<>(Double.parseDouble(String.valueOf(batteryCapacity)), timestamp);
+            } else {
+                latestCharge = new Pair<>(Double.parseDouble(findNum[1]), timestamp);
+            }
             findNum[1] = String.valueOf(latestCharge);
             charge.add(findNum[1]);
         }
