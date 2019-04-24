@@ -291,7 +291,6 @@ setupLatestCharge = function(){
 
 setupLatestSpeed = function(){
   const ctx = document.getElementById('myChart').getContext('2d');
-  console.log(xArray);
   if(speedChart != null){
     speedChart.destroy();
   }
