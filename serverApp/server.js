@@ -94,6 +94,8 @@ app.post("/update", (req, res) => {
     previousCharge = latestCharge;
     if(data.val > batteryCapacity){
       latestCharge = batteryCapacity;
+    } else if(data.val < 0){
+      latestCharge = 0;
     } else {
       latestCharge = data.val;
     }
