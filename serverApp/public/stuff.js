@@ -83,7 +83,10 @@ updateChargeChart = function(data, percent){
   if(focusedCharge == false){
     speedChart.options.scales.yAxes[0].ticks = {
         min : data[0] - 200000,
-        max : data[data.length - 1] + 200000
+        max : data[data.length - 1] + 200000,
+        callback: function(label, index, labels) {
+          return Math.trunc((label / 3110400) * 100)
+        }
     };
     focusedCharge = true;
   }
@@ -230,14 +233,16 @@ setupLatestCharge = function(){
         display: false
       },
       maintainAspectRatio: false,
-      scaleLabel : "<%= Math.trunc((Number(value) / batteryCapacity) * 100)%>",
       scales: {
         yAxes: [{
           display: true,
           stacked: true,
           ticks: {
             min: 0, // minimum value
-            max: fullCharge // maximum value, which should be the maximum watt seconds for the battery capacity
+            max: fullCharge, // maximum value, which should be the maximum watt seconds for the battery capacity
+            callback: function(label, index, labels) {
+              return Math.trunc((label / 3110400) * 100)
+            }
           },
           scaleLabel: {
             display: true,
