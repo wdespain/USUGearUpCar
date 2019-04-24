@@ -94,7 +94,7 @@ updateChargeChart = function(data, percent){
   } else if( percent < 30) {
     $("#charge").css("background-color", red);
   }
-  if(percent <= 50 && orangeTrip == false){
+  if(data[data.length-1] <= 50 && orangeTrip == false){
     orangeTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, green);
@@ -105,7 +105,7 @@ updateChargeChart = function(data, percent){
       fill : "start",
       backgroundColor: gradientFill
     };
-  } else if(percent <= 20 && redTrip == false){
+  } else if(data[data.length-1] <= 20 && redTrip == false){
     redTrip = true;
     var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
     gradientFill.addColorStop(1, orange);
@@ -205,6 +205,7 @@ setupAllCharge = function(){
 }
 
 setupLatestCharge = function(){
+  focusedCharge = false;
   const ctx = document.getElementById('myChart').getContext('2d');
   var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
   gradientFill.addColorStop(0, green);
