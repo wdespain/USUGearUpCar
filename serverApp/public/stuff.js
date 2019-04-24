@@ -230,6 +230,7 @@ setupLatestCharge = function(){
         display: false
       },
       maintainAspectRatio: false,
+      scaleLabel : "<%= Math.trunc((Number(value) / batteryCapacity) * 100)%>",
       scales: {
         yAxes: [{
           display: true,
