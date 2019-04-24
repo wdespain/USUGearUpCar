@@ -82,8 +82,8 @@ updateChargeChart = function(data, percent){
   //}
   if(focusedCharge == false){
     speedChart.options.scales.yAxes[0].ticks = {
-        min : data[0] - 2000,
-        max : data[data.length - 1] + 2000
+        min : data[0] - 20000,
+        max : data[data.length - 1] + 20000
     };
     focusedCharge = true;
   }
