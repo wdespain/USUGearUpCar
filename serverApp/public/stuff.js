@@ -289,6 +289,10 @@ setupLatestCharge = function(){
 
 setupLatestSpeed = function(){
   const ctx = document.getElementById('myChart').getContext('2d');
+  const xArray = new Array(latestSpeedArraySize).fill(0).forEach(fuction(value, i){
+    value = value - i;
+  });
+  console.log(xArray);
   if(speedChart != null){
     speedChart.destroy();
   }
@@ -296,9 +300,7 @@ setupLatestSpeed = function(){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(latestSpeedArraySize).fill(0).forEach(fuction(value, i){
-        value = value - i;
-      }),
+      labels : xArray,
       datasets : [{
         data : new Array(latestSpeedArraySize).fill(0),
         label : "speed",
