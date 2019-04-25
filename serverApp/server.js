@@ -103,11 +103,11 @@ app.post("/update", (req, res) => {
     //so the idea is that the car will be moving when it goes over the pad
     //if(latestCurrent < 0 && latestSpeed > 10){ 
     if(latestCurrent < -0.33){
-      if(previousCharge < latestCharge){
+      //if(previousCharge < latestCharge){
       //if((latestCharge - previousCharge) > 10){
         chargeGained += latestCharge - previousCharge;
         database.run(`INSERT INTO chargeGained VALUES (${data.carId},${chargeGained},${new Date().getTime() / 1000}) `);
-      }
+      //}
     }
     //This takes off the oldest charge and adds the latest one
     if(latestChargeArray.length > latestChargeArraySize){
