@@ -96,6 +96,8 @@ updateChargeChart = function(data, percent){
     if(maxTick > batteryCapacity){
       maxTick = batteryCapacity;
     }
+    console.log(minTick);
+    console.log(maxTick);
     speedChart.options.scales.yAxes[0].ticks = {
         min : minTick,
         max : maxTick,
