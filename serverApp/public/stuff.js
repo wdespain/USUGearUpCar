@@ -92,9 +92,12 @@ updateChargeChart = function(data, percent){
     if(minTick < 0){
       minTick = 0;
     }
+    let maxTick = minTick + 400000;
+    /*
     let maxTickArray = data.slice(data.length - 1, data.length);
+    console.log(maxTickArray)
     const maxTick = maxTickArray[0] + 200000;
-    console.log(maxTick);
+    console.log(maxTick);*/
     if(maxTick > batteryCapacity){
       maxTick = batteryCapacity;
     }
