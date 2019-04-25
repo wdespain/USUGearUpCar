@@ -87,6 +87,7 @@ updateChargeChart = function(data, percent){
   //  data.push(data[data.length-1]);
   //}
   if(focusedCharge == false){
+    console.log("focus");
     let minTick = data[data.length - 1] - 200000;
     if(minTick < 0){
       minTick = 0;
