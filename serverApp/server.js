@@ -101,8 +101,8 @@ app.post("/update", (req, res) => {
     }
     //the speed is because when the car is idle we will sometimes get negative current values, 
     //so the idea is that the car will be moving when it goes over the pad
-    //if(latestCurrent < 0 && latestSpeed > 10){ 
-    if(latestCurrent < -0.33){
+    if(latestSpeed > 0){ 
+    //if(latestCurrent < -0.33){
       //if(previousCharge < latestCharge){
       //if((latestCharge - previousCharge) > 10){
         chargeGained += latestCharge - previousCharge;

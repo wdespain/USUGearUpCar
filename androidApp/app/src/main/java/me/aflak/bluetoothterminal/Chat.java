@@ -156,7 +156,7 @@ public class Chat extends AppCompatActivity implements Bluetooth.CommunicationCa
         Display("this is a message");
         if(latestSpeed != null){
             postSpeed();
-            latestSpeed = null;
+            latestSpeed = new Pair<>(0.0, String.valueOf(System.currentTimeMillis()/1000));;
         }
         if(latestCharge != null){
             postCharge();
