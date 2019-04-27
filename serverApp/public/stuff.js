@@ -475,7 +475,7 @@ setupSpeed = function (){
 }
 
 setupSliceSpeed = function(from, to){
-  const chartData = allCharge.slice(from, to);
+  const chartData = allSpeed.slice(from, to);
   const ctx = document.getElementById('myChart').getContext('2d');
   speedChart.destroy();
   speedChart = new Chart(ctx, {
@@ -570,7 +570,7 @@ $("#sliceSpeed").on("click", () => {
   $("#sliceSpeed").attr("disabled", true);
   activeGraph = "sliceSpeed";
   $("#timeStamp").show();
-  $("#timeStampInfo").text(`Enter the data range for which you want to see data for. This one has data from 0 to ${allCharge.length}`);
+  $("#timeStampInfo").text(`Enter the data range for which you want to see data for. This one has data from 0 to ${allSpeed.length}`);
 });
 $("#showData").on("click", () => {
   const from = $("#minTimeStamp").val();
@@ -588,7 +588,6 @@ $("#showData").on("click", () => {
       }
       setupSliceSpeed(from, to);
     }
-    $("#timeStamp").hide();
   } else {
     window.alert("Please make sure that the second value is bigger than the first and that they are above 0.")
   }
