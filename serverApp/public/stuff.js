@@ -308,9 +308,7 @@ setupLatestCharge = function(){
 
 setupSliceCharge = function(from, to){
   console.log(`from: ${from}  to: ${to}`)
-  console.log(allCharge)
-  const chartData = allCharge.slice(to, from);
-  console.log(chartData)
+  const chartData = allCharge.slice(from, to);
   const ctx = document.getElementById('myChart').getContext('2d');
   var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
   gradientFill.addColorStop(1, green);
@@ -477,7 +475,7 @@ setupSpeed = function (){
 }
 
 setupSliceSpeed = function(from, to){
-  const chartData = allCharge.slice(to, from);
+  const chartData = allCharge.slice(from, to);
   const ctx = document.getElementById('myChart').getContext('2d');
   speedChart.destroy();
   speedChart = new Chart(ctx, {
@@ -535,6 +533,7 @@ setAllButtonsToFalse = function(){
 }
 
 $("#allCharge").on("click", () => {
+  $("#timeStamp").hide();
   setAllButtonsToFalse();
   $("#allCharge").attr("disabled", true);
   activeGraph = "allCharge";
@@ -554,6 +553,7 @@ $("#sliceCharge").on("click", () => {
   $("#timeStampInfo").text(`Enter the data range for which you want to see data for. This one has data from 0 to ${allCharge.length}`);
 });
 $("#allSpeed").on("click", () => {
+  $("#timeStamp").hide();
   setAllButtonsToFalse();
   $("#allSpeed").attr("disabled", true);
   activeGraph = "allSpeed";
