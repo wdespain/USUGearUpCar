@@ -174,7 +174,7 @@ instantiateText = function(){
     }
   });
   setupAllCharge();
-  //getData();
+  getData();
   //setupLatestCharge();
   //getChartData();
 }
@@ -574,7 +574,7 @@ $("#sliceSpeed").on("click", () => {
 });
 $("#showData").on("click", () => {
   const from = $("#minTimeStamp").val();
-  const to = $("#maxTimeStamp").val();
+  let to = $("#maxTimeStamp").val();
   console.log(`from: ${from}  to: ${to}`)
   if(from < to && from >= 0 && to > 0){
     if(activeGraph == "sliceCharge"){
