@@ -324,7 +324,7 @@ setupSliceCharge = function(from, to){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(chartData).fill(0),
+      labels : chartData,
       datasets : [{
         data : chartData,
         label : "charge",
@@ -481,7 +481,7 @@ setupSliceSpeed = function(from, to){
   speedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels : new Array(chartData).fill(0),
+      labels : chartData,
       datasets : [{
         data : chartData,
         label : "speed",
