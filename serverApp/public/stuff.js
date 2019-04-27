@@ -3,8 +3,8 @@
 const carId = 1;
 const latestChargeArraySize = 1200;
 const latestSpeedArraySize = 600;
-//const urlPath = "http://localhost:3000";
-const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
+const urlPath = "http://localhost:3000";
+//const urlPath = "http://ec2-54-187-254-25.us-west-2.compute.amazonaws.com:3000";
 let speedChart = null;
 //let secretCharge = 100;
 //let secretChargeUpCountDown = 0;
@@ -17,6 +17,8 @@ let redTrip = false;
 let activeGraph = "latestCharge";
 const batteryCapacity = 3110400; //full charge in watt seconds
 let focusedCharge = false;
+let allCharge = [];
+let allSpeed = [];
 
 getData = function(){
   $.ajax({
@@ -70,22 +72,6 @@ getChartData = function(chartType){
 
 updateChargeChart = function(data, percent){
   var ctx = document.getElementById('myChart').getContext('2d');
-  /*
-  if(Math.floor(Math.random() * (25 + 1)) == 5){
-    secretChargeUpCountDown = 10;
-  }
-  secretChargeUpCountDown -= 1;
-  if(secretChargeUpCountDown > 0){
-    secretCharge += 1;
-  } else {
-    secretCharge -= 1;
-  }
-  secretChargeArray = secretChargeArray.slice(1)
-  secretChargeArray.push(secretCharge)
-  data = secretChargeArray*/
-  //while(data.length < 10){
-  //  data.push(data[data.length-1]);
-  //}
   if(focusedCharge == false){
     console.log("focus"+data[data.length - 1]);
     let minTick = data[data.length - 1] - 200000;
@@ -95,9 +81,7 @@ updateChargeChart = function(data, percent){
     let maxTick = minTick + 400000;
     /*
     let maxTickArray = data.slice(data.length - 1, data.length);
-    console.log(maxTickArray)
-    const maxTick = maxTickArray[0] + 200000;
-    console.log(maxTick);*/
+    const maxTick = maxTickArray[0] + 200000;*/
     if(maxTick > batteryCapacity){
       maxTick = batteryCapacity;
     }
@@ -166,10 +150,33 @@ instantiateText = function(){
     complete: function (response) {
       $("#carInfo").text(response.responseText);
     }
+  });
+  $.ajax({
+    type : "POST",
+    url : `${urlPath}/getDataForChart`,
+    data : `{ "carId" : ${carId}, "chartType" : "allCharge" }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      const resData = JSON.parse(response.responseText);
+      allCharge = resData.chargeData;
+    }
   })
-  getData();
-  setupLatestCharge();
-  getChartData();
+  $.ajax({
+    type : "POST",
+    url : `${urlPath}/getDataForChart`,
+    data : `{ "carId" : ${carId}, "chartType" : "allSpeed" }`,
+    contentType : "application/json; charset=utf-8",
+    dataType : "json",
+    complete: function (response) {
+      const resData = JSON.parse(response.responseText);
+      allSpeed = resData.chargeData;
+    }
+  });
+  setupAllCharge();
+  //getData();
+  //setupLatestCharge();
+  //getChartData();
 }
 
 setupAllCharge = function(){
@@ -192,7 +199,9 @@ setupAllCharge = function(){
       } else {
         gradientFill.addColorStop(0, red);
       }
-      speedChart.destroy();
+      if(speedChart != null){
+        speedChart.destroy();
+      }
       speedChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -297,6 +306,69 @@ setupLatestCharge = function(){
   });
 }
 
+setupSliceCharge = function(from, to){
+  console.log(`from: ${from}  to: ${to}`)
+  console.log(allCharge)
+  const chartData = allCharge.slice(to, from);
+  console.log(chartData)
+  const ctx = document.getElementById('myChart').getContext('2d');
+  var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
+  gradientFill.addColorStop(1, green);
+  const lastChargeDataPercent = Math.trunc((chartData[chartData.length - 1] / batteryCapacity) * 100);
+  if( lastChargeDataPercent > 50){
+    gradientFill.addColorStop(0, green);
+  } else if( lastChargeDataPercent > 30 && lastChargeDataPercent < 50){
+    gradientFill.addColorStop(0, orange);
+  } else {
+    gradientFill.addColorStop(0, red);
+  }
+  speedChart.destroy();
+  speedChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels : new Array(chartData).fill(0),
+      datasets : [{
+        data : chartData,
+        label : "charge",
+        fill : "start",
+        backgroundColor: gradientFill
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      maintainAspectRatio: false,
+      scales: {
+        yAxes: [{
+          display: true,
+          stacked: true,
+          ticks: {
+            min: 0, // minimum value
+            max: batteryCapacity, // maximum value, which should be the maximum watt seconds for the battery capacity
+            callback: function(label, index, labels) {
+              return Math.trunc((label / 3110400) * 100)
+            }
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Percent Charge'
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: `Showing data points ${from} to ${to}`
+          }
+        }]
+      }
+    }
+  });
+}
+
 setupLatestSpeed = function(){
   const ctx = document.getElementById('myChart').getContext('2d');
   if(speedChart != null){
@@ -356,7 +428,6 @@ setupSpeed = function (){
     dataType : "json",
     complete: function (response) {
       const resData = JSON.parse(response.responseText);
-      console.log("allcharge");
       const ctx = document.getElementById('myChart').getContext('2d');
       speedChart.destroy();
       speedChart = new Chart(ctx, {
@@ -405,46 +476,128 @@ setupSpeed = function (){
   })
 }
 
+setupSliceSpeed = function(from, to){
+  const chartData = allCharge.slice(to, from);
+  const ctx = document.getElementById('myChart').getContext('2d');
+  speedChart.destroy();
+  speedChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels : new Array(chartData).fill(0),
+      datasets : [{
+        data : chartData,
+        label : "speed",
+        fill : "start"
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      maintainAspectRatio: false,
+      scales: {
+        yAxes: [{
+          display: true,
+          stacked: true,
+          ticks: {
+            min: 0, // minimum value
+            max: 30
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'MPH'
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: `Showing data points ${from} to ${to}`
+          }
+        }]
+      }
+    }
+  });
+}
+
+
 instantiateText();
 
+setAllButtonsToFalse = function(){
+  $("#allCharge").attr("disabled", false);
+  $("#latestCharge").attr("disabled", false);
+  $("#sliceCharge").attr("disabled", false);
+  $("#allSpeed").attr("disabled", false);
+  $("#latestSpeed").attr("disabled", false);
+  $("#sliceSpeed").attr("disabled", false);
+}
+
 $("#allCharge").on("click", () => {
+  setAllButtonsToFalse();
   $("#allCharge").attr("disabled", true);
   activeGraph = "allCharge";
   setupAllCharge();
-  $("#latestCharge").attr("disabled", false);
-  $("#allSpeed").attr("disabled", false);
-  $("#latestSpeed").attr("disabled", false);
 });
-
 $("#latestCharge").on("click", () => {
-  $("#allCharge").attr("disabled", false);
+  setAllButtonsToFalse();
   $("#latestCharge").attr("disabled", true);
   activeGraph = "latestCharge";
   setupLatestCharge();
-  $("#allSpeed").attr("disabled", false);
-  $("#latestSpeed").attr("disabled", false);
 });
-
+$("#sliceCharge").on("click", () => {
+  setAllButtonsToFalse();
+  $("#sliceCharge").attr("disabled", true);
+  activeGraph = "sliceCharge";
+  $("#timeStamp").show();
+  $("#timeStampInfo").text(`Enter the data range for which you want to see data for. This one has data from 0 to ${allCharge.length}`);
+});
 $("#allSpeed").on("click", () => {
-  $("#allCharge").attr("disabled", false);
-  $("#latestCharge").attr("disabled", false);
+  setAllButtonsToFalse();
   $("#allSpeed").attr("disabled", true);
   activeGraph = "allSpeed";
   setupSpeed();
-  $("#latestSpeed").attr("disabled", false);
 });
 $("#latestSpeed").on("click", () => {
-  $("#allCharge").attr("disabled", false);
-  $("#latestCharge").attr("disabled", false);
-  $("#allSpeed").attr("disabled", false);
+  setAllButtonsToFalse();
   $("#latestSpeed").attr("disabled", true);
   activeGraph = "latestSpeed";
   setupLatestSpeed();
 });
+$("#sliceSpeed").on("click", () => {
+  setAllButtonsToFalse();
+  $("#sliceSpeed").attr("disabled", true);
+  activeGraph = "sliceSpeed";
+  $("#timeStamp").show();
+  $("#timeStampInfo").text(`Enter the data range for which you want to see data for. This one has data from 0 to ${allCharge.length}`);
+});
+$("#showData").on("click", () => {
+  const from = $("#minTimeStamp").val();
+  const to = $("#maxTimeStamp").val();
+  console.log(`from: ${from}  to: ${to}`)
+  if(from < to && from >= 0 && to > 0){
+    if(activeGraph == "sliceCharge"){
+      if(to > allCharge.length){
+        to = allCharge.length;
+      }
+      setupSliceCharge(from, to);
+    } else if(activeGraph == "sliceSpeed"){
+      if(to > allSpeed.length){
+        to = allSpeed.length;
+      }
+      setupSliceSpeed(from, to);
+    }
+    $("#timeStamp").hide();
+  } else {
+    window.alert("Please make sure that the second value is bigger than the first and that they are above 0.")
+  }
+});
 
+/*
 setInterval(function() {
   getData();
   if(activeGraph == "latestCharge" || activeGraph == "latestSpeed"){
     getChartData();
   }
-}, 1000);
+}, 1000);*/
