@@ -53,8 +53,6 @@ database.serialize(() => {
 
   database.run("CREATE TABLE IF NOT EXISTS chargeData(carId INT, value INT, timeEnt INT);");
 
-  database.run("CREATE TABLE IF NOT EXISTS chargeGained(carId INT, value INT, timeEnt INT);");
-
   database.run("CREATE TABLE IF NOT EXISTS currentData(carId INT, value INT, timeEnt INT);");
 
   database.run("CREATE TABLE IF NOT EXISTS voltageData(carId INT, value INT, timeEnt INT);");
