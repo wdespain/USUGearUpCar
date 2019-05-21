@@ -75,7 +75,7 @@ app.get("/test", function(req, res){
 
 app.post("/update", (req, res) => {
   const data = req.body;
-  console.log(`${data.indicator}: ${data.val}`);
+  //console.log(`${data.indicator}: ${data.val}`);
   //insert values (carId, val, timestamp)
   // indicators will be: spe, cha, cur, vol\
   if (data.indicator == "spe"){ // speed is assumed to come in as miles per hour
