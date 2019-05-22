@@ -173,10 +173,10 @@ instantiateText = function(){
       allSpeed = resData.chargeData;
     }
   });
-  setupAllCharge();
-  getData();
-  //setupLatestCharge();
-  //getChartData();
+  //setupAllCharge();
+  //getData();
+  setupLatestCharge();
+  getChartData();
 }
 
 setupAllCharge = function(){
@@ -520,9 +520,6 @@ setupSliceSpeed = function(from, to){
   });
 }
 
-
-instantiateText();
-
 setAllButtonsToFalse = function(){
   $("#allCharge").attr("disabled", false);
   $("#latestCharge").attr("disabled", false);
@@ -593,10 +590,11 @@ $("#showData").on("click", () => {
   }
 });
 
-/*
+instantiateText();
+
 setInterval(function() {
   getData();
   if(activeGraph == "latestCharge" || activeGraph == "latestSpeed"){
     getChartData();
   }
-}, 1000);*/
+}, 1000);
